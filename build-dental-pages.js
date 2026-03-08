@@ -2025,6 +2025,17 @@ function buildSubmitListingPage() {
           </ul>
         </div>
         <div class="sidebar-card" style="margin-top: 1rem;">
+          <h3>What You Get</h3>
+          <p class="sidebar-address" style="margin-bottom: 0.75rem;">Every listing is built to help your practice get found in Google, Google Maps, and AI search tools like ChatGPT and Perplexity.</p>
+          <ul class="sidebar-links guidelines">
+            <li>&#128279; Backlink from a relevant .au dental directory</li>
+            <li>&#128205; Consistent NAP data</li>
+            <li>&#129302; AI search visibility</li>
+            <li>&#127973; Your services and highlights</li>
+            <li>&#128202; Location-based structure</li>
+          </ul>
+        </div>
+        <div class="sidebar-card" style="margin-top: 1rem;">
           <h3>Need Help?</h3>
           <p class="sidebar-address">Email us at <a href="mailto:hello@godental.au">hello@godental.au</a> if you have any questions about the listing process.</p>
         </div>
