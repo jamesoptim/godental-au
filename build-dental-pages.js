@@ -1433,25 +1433,33 @@ function topServices(services, n = 3) {
 
 // State-specific gradient colours for placeholders
 const stateColors = {
-  vic: ['#1e3a8a', '#2563eb'],
-  nsw: ['#0369a1', '#0ea5e9'],
+  vic: ['#134e4a', '#0d9488'],
+  nsw: ['#0e7490', '#06b6d4'],
   qld: ['#991b1b', '#dc2626'],
   sa: ['#9a3412', '#ea580c'],
   wa: ['#854d0e', '#ca8a04'],
   tas: ['#166534', '#16a34a'],
   nt: ['#92400e', '#d97706'],
-  act: ['#1e3a8a', '#3b82f6'],
+  act: ['#115e59', '#14b8a6'],
 };
 
 function practicePlaceholder(practice, stateSlug, size = 'sm') {
   const colors = stateColors[stateSlug] || stateColors.vic;
   const initial = practice.name.charAt(0).toUpperCase();
   const sizeClass = size === 'lg' ? 'placeholder-lg' : 'placeholder-sm';
-  // If practice has an image property, use that instead
+  const imgClass = size === 'lg' ? 'practice-img-lg' : 'practice-img-sm';
+
+  // If practice has an image property, use that
   if (practice.image) {
-    const imgClass = size === 'lg' ? 'practice-img-lg' : 'practice-img-sm';
     return `<img src="${escapeHtml(practice.image)}" alt="${escapeHtml(practice.name)}" class="${imgClass}" loading="lazy">`;
   }
+
+  // Check for website screenshot
+  const screenshotPath = path.join(__dirname, 'images', 'screenshots', stateSlug, `${practice.slug}.jpg`);
+  if (fs.existsSync(screenshotPath)) {
+    return `<img src="/images/screenshots/${stateSlug}/${practice.slug}.jpg" alt="${escapeHtml(practice.name)} website" class="${imgClass}" loading="lazy">`;
+  }
+
   return `<div class="practice-placeholder ${sizeClass}" style="background: linear-gradient(135deg, ${colors[0]}, ${colors[1]});">
     <span class="placeholder-initial">${initial}</span>
     <i class="fa-solid fa-tooth placeholder-icon"></i>
@@ -1488,13 +1496,16 @@ function htmlShell({ title, metaDescription, bodyClass, content, canonical }) {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>${escapeHtml(title)}</title>
   <meta name="description" content="${escapeHtml(metaDescription)}">
+  <link rel="icon" href="/favicon.ico" sizes="32x32">
+  <link rel="icon" href="/images/favicon-192.png" type="image/png" sizes="192x192">
+  <link rel="apple-touch-icon" href="/images/apple-touch-icon.png">
   <link rel="stylesheet" href="/styles.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
 <body class="${bodyClass}">
   <header class="site-header">
     <div class="container header-inner">
-      <a href="/" class="site-logo">GoDental.au</a>
+      <a href="/" class="site-logo"><img src="/images/logo.png" alt="GoDental.au" height="36"></a>
       <nav class="site-nav">
         ${stateNav('')}
       </nav>
@@ -1534,6 +1545,9 @@ function buildHomepage() {
 
   const content = `
   <section class="hero">
+    <div class="hero-bg">
+      <img src="/images/hero-dental-desk.png" alt="" width="1400" height="420">
+    </div>
     <div class="container hero-content">
       <h1>Find Your Perfect Dentist</h1>
       <p class="hero-sub">Australia&rsquo;s trusted dental directory &mdash; browse ${totalPractices} verified practices across every state and territory.</p>
@@ -1684,6 +1698,8 @@ function buildPracticeDetail(state, practice) {
               ${highlightsList}
           </ul>
         </section>
+
+        ${buildReviewsSection(state.slug, practice.slug)}
 
         <section class="detail-section">
           <h2><i class="fa-solid fa-map-location-dot"></i> Location</h2>
@@ -2049,6 +2065,51 @@ function buildSubmitListingPage() {
 // ============================================================
 // BUILD ALL PAGES
 // ============================================================
+// Load reviews data if available
+let reviewsData = {};
+const reviewsJsonPath = path.join(__dirname, 'reviews.json');
+if (fs.existsSync(reviewsJsonPath)) {
+  try {
+    reviewsData = JSON.parse(fs.readFileSync(reviewsJsonPath, 'utf8'));
+    const reviewCount = Object.values(reviewsData).filter(r => r && r.length > 0).length;
+    console.log(`Loaded reviews for ${reviewCount} practices.\n`);
+  } catch (e) {
+    console.log('Warning: Could not parse reviews.json\n');
+  }
+}
+
+function buildReviewsSection(stateSlug, practiceSlug) {
+  const key = `${stateSlug}/${practiceSlug}`;
+  const reviews = reviewsData[key];
+  if (!reviews || reviews.length === 0) return '';
+
+  const starHtml = (count) => {
+    let s = '';
+    for (let i = 0; i < count; i++) s += '★';
+    for (let i = count; i < 5; i++) s += '☆';
+    return s;
+  };
+
+  const reviewCards = reviews.map(r => `
+            <div class="review-card">
+              <div class="review-header">
+                <span class="review-author">${escapeHtml(r.author)}</span>
+                <span class="review-stars">${starHtml(r.stars || 5)}</span>
+              </div>
+              <p class="review-text">&ldquo;${escapeHtml(r.text)}&rdquo;</p>
+              ${r.date ? `<span class="review-date">${escapeHtml(r.date)}</span>` : ''}
+              <span class="review-source"><i class="fa-brands fa-google"></i> Google Review</span>
+            </div>`).join('\n');
+
+  return `
+        <section class="detail-section">
+          <h2><i class="fa-solid fa-star"></i> Patient Reviews</h2>
+          <div class="reviews-list">
+            ${reviewCards}
+          </div>
+        </section>`;
+}
+
 function build() {
   console.log('Building dental directory...\n');
 

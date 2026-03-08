@@ -1,0 +1,24 @@
+{
+  "name": "dentists",
+  "version": "1.0.0",
+  "description": "",
+  "main": "build-dental-pages.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jamesoptim/godental-au.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/jamesoptim/godental-au/issues"
+  },
+  "homepage": "https://github.com/jamesoptim/godental-au#readme",
+  "dependencies": {
+    "playwright": "^1.58.2"
+  }
+}
