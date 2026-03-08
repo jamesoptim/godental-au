@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <!-- Four-pointed sparkle star -->
+  <path d="M32 4 C33.5 18, 46 30.5, 60 32 C46 33.5, 33.5 46, 32 60 C30.5 46, 18 33.5, 4 32 C18 30.5, 30.5 18, 32 4Z" fill="#C5A55A"/>
+  <!-- Small accent dots between the points -->
+  <circle cx="46" cy="18" r="2.2" fill="#C5A55A" opacity="0.5"/>
+  <circle cx="18" cy="46" r="2.2" fill="#C5A55A" opacity="0.5"/>
+  <circle cx="46" cy="46" r="2.2" fill="#C5A55A" opacity="0.5"/>
+  <circle cx="18" cy="18" r="2.2" fill="#C5A55A" opacity="0.5"/>
+</svg>
