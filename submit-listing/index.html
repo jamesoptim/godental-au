@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Submit a Listing — GoDental.au</title>
+  <meta name="description" content="Submit your dental practice to GoDental.au, Australia&#039;s trusted dental directory. Free listings for dental clinics across all states and territories.">
+  <link rel="stylesheet" href="/styles.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body class="page-submit">
+  <header class="site-header">
+    <div class="container header-inner">
+      <a href="/" class="site-logo">GoDental.au</a>
+      <nav class="site-nav">
+        <a href="/vic/">VIC</a>
+              <a href="/nsw/">NSW</a>
+              <a href="/qld/">QLD</a>
+              <a href="/sa/">SA</a>
+              <a href="/wa/">WA</a>
+              <a href="/tas/">TAS</a>
+              <a href="/nt/">NT</a>
+              <a href="/act/">ACT</a>
+              <span class="nav-divider"></span>
+              <a href="/about/">About</a>
+              <a href="/submit-listing/" class="nav-cta"><i class="fa-solid fa-tooth"></i> List Your Practice</a>
+      </nav>
+      <button class="nav-toggle" aria-label="Toggle navigation">&#9776;</button>
+    </div>
+  </header>
+  
+  <main class="container page-content">
+    <nav class="breadcrumbs" aria-label="Breadcrumb">
+      <a href="/">Home</a> &rsaquo; <span>Submit a Listing</span>
+    </nav>
+
+    <div class="content-layout">
+      <div class="content-main">
+        <h1>List Your Dental Practice</h1>
+        <p class="page-intro">GoDental.au is exclusively for <strong>dental practices</strong>. We do not accept listings from other healthcare providers, product companies, or service businesses. Complete the form below to submit your dental practice for review.</p>
+
+        <div class="info-banner">
+          <i class="fa-solid fa-circle-check"></i> <strong>What gets listed:</strong> Dental clinics, orthodontic practices, oral surgery centres, prosthodontic clinics, paediatric dental practices, and other dedicated dental care providers across Australia.
+        </div>
+
+        <div class="agency-warning">
+          <i class="fa-solid fa-triangle-exclamation"></i> <strong>No agencies, please.</strong> We only accept submissions directly from dental practice owners, managers, or staff. Submissions from marketing agencies, SEO companies, or third-party listing services will not be accepted.
+        </div>
+
+        <div class="form-tabs">
+          <button class="form-tab active" data-tab="single"><i class="fa-solid fa-building"></i> Single Practice</button>
+          <button class="form-tab" data-tab="bulk"><i class="fa-solid fa-buildings"></i> Bulk Submission</button>
+        </div>
+
+        <form class="listing-form" id="single-form" action="#" method="POST" onsubmit="handleSubmit(event)">
+          <fieldset>
+            <legend>Practice Details</legend>
+
+            <div class="form-group">
+              <label for="practice-name">Practice Name <span class="required">*</span></label>
+              <input type="text" id="practice-name" name="practice_name" required placeholder="e.g. Smile Solutions">
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="practice-suburb">Suburb / City <span class="required">*</span></label>
+                <input type="text" id="practice-suburb" name="suburb" required placeholder="e.g. Melbourne">
+              </div>
+              <div class="form-group">
+                <label for="practice-state">State / Territory <span class="required">*</span></label>
+                <select id="practice-state" name="state" required>
+                  <option value="">Select state&hellip;</option>
+                  <option value="VIC">Victoria</option>
+                  <option value="NSW">New South Wales</option>
+                  <option value="QLD">Queensland</option>
+                  <option value="SA">South Australia</option>
+                  <option value="WA">Western Australia</option>
+                  <option value="TAS">Tasmania</option>
+                  <option value="NT">Northern Territory</option>
+                  <option value="ACT">Australian Capital Territory</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="practice-address">Full Street Address <span class="required">*</span></label>
+              <input type="text" id="practice-address" name="address" required placeholder="e.g. Level 1, 171 Collins Street, Melbourne VIC 3000">
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="practice-phone">Phone Number <span class="required">*</span></label>
+                <input type="tel" id="practice-phone" name="phone" required placeholder="e.g. (03) 9650 2222">
+              </div>
+              <div class="form-group">
+                <label for="practice-website">Website</label>
+                <input type="url" id="practice-website" name="website" placeholder="e.g. https://www.example.com.au">
+              </div>
+            </div>
+          </fieldset>
+
+          <fieldset>
+            <legend>About Your Practice</legend>
+
+            <div class="form-group">
+              <label for="practice-description">Practice Description <span class="required">*</span></label>
+              <textarea id="practice-description" name="description" rows="5" required placeholder="Tell us about your practice, your team, and what makes you unique. This will appear on your listing page."></textarea>
+            </div>
+
+            <div class="form-group">
+              <label for="practice-services">Services Offered <span class="required">*</span></label>
+              <textarea id="practice-services" name="services" rows="3" required placeholder="List your main services, separated by commas. e.g. General Dentistry, Cosmetic Dentistry, Dental Implants, Teeth Whitening"></textarea>
+            </div>
+
+            <div class="form-group">
+              <label for="practice-highlights">Key Highlights</label>
+              <textarea id="practice-highlights" name="highlights" rows="3" placeholder="What sets your practice apart? List 3-5 highlights, one per line. e.g. Over 20 years experience, State-of-the-art facilities"></textarea>
+            </div>
+          </fieldset>
+
+          <fieldset>
+            <legend>Contact Person</legend>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="contact-name">Your Name <span class="required">*</span></label>
+                <input type="text" id="contact-name" name="contact_name" required placeholder="e.g. Dr Jane Smith">
+              </div>
+              <div class="form-group">
+                <label for="contact-email">Your Email <span class="required">*</span></label>
+                <input type="email" id="contact-email" name="contact_email" required placeholder="e.g. jane@example.com.au">
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="contact-role">Your Role</label>
+              <input type="text" id="contact-role" name="contact_role" placeholder="e.g. Practice Manager, Principal Dentist">
+            </div>
+          </fieldset>
+
+          <div class="form-group">
+            <label class="checkbox-label">
+              <input type="checkbox" name="confirm_dental" required>
+              I confirm this is a dental practice (not another type of healthcare or business) <span class="required">*</span>
+            </label>
+          </div>
+
+          <div class="premium-offer">
+            <div class="premium-offer-header">
+              <i class="fa-solid fa-crown"></i> <strong>Premium Listing (Optional)</strong>
+            </div>
+            <p>Get your practice featured at the <strong>top of your state&rsquo;s results page</strong> with a highlighted listing badge. Simply add a link back to GoDental.au from your practice website.</p>
+            <label class="checkbox-label premium-checkbox">
+              <input type="checkbox" name="premium_backlink">
+              <span>I have added (or will add) a link to <strong>godental.au</strong> on my practice website in exchange for a premium listing placement</span>
+            </label>
+            <p class="premium-note"><i class="fa-solid fa-circle-info"></i> We&rsquo;ll verify the backlink before activating your premium placement. The link can be in your footer, partners page, or links page.</p>
+          </div>
+
+          <button type="submit" class="btn btn-call btn-lg btn-submit">Submit Listing for Review</button>
+          <p class="form-note">Submissions are reviewed manually. We&rsquo;ll be in touch within a few business days.</p>
+        </form>
+
+        <form class="listing-form bulk-form" id="bulk-form" style="display:none;" action="#" method="POST" onsubmit="handleBulkSubmit(event)">
+          <fieldset>
+            <legend><i class="fa-solid fa-list"></i> Bulk Practice Submission</legend>
+            <p style="color:#475569; margin-bottom:1rem; line-height:1.7;">Submitting multiple practices? Paste your practice details below in CSV format, or describe each practice separated by a blank line. We&rsquo;ll process them all together.</p>
+
+            <div class="info-banner" style="margin-bottom:1.25rem;">
+              <strong>CSV Format:</strong> Practice Name, Address, Suburb, State, Phone, Website (one practice per line)
+            </div>
+
+            <div class="form-group">
+              <label for="bulk-data">Practice Details <span class="required">*</span></label>
+              <textarea id="bulk-data" name="bulk_data" rows="10" required placeholder="Smile Solutions, Level 1 171 Collins St Melbourne VIC 3000, Melbourne, VIC, (03) 9650 2222, https://www.smilesolutions.com.au&#10;Another Dental, 45 King St Sydney NSW 2000, Sydney, NSW, (02) 9000 1234, https://www.anotherdental.com.au"></textarea>
+            </div>
+          </fieldset>
+
+          <fieldset>
+            <legend>Contact Person</legend>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="bulk-contact-name">Your Name <span class="required">*</span></label>
+                <input type="text" id="bulk-contact-name" name="contact_name" required placeholder="e.g. Dr Jane Smith">
+              </div>
+              <div class="form-group">
+                <label for="bulk-contact-email">Your Email <span class="required">*</span></label>
+                <input type="email" id="bulk-contact-email" name="contact_email" required placeholder="e.g. jane@example.com.au">
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="bulk-contact-role">Your Role</label>
+              <input type="text" id="bulk-contact-role" name="contact_role" placeholder="e.g. Practice Manager, Group Owner">
+            </div>
+          </fieldset>
+
+          <div class="form-group">
+            <label class="checkbox-label">
+              <input type="checkbox" name="confirm_dental" required>
+              I confirm all submissions are dental practices and I am submitting on behalf of the practice(s) directly &mdash; not as an agency <span class="required">*</span>
+            </label>
+          </div>
+
+          <div class="premium-offer">
+            <div class="premium-offer-header">
+              <i class="fa-solid fa-crown"></i> <strong>Premium Listing (Optional)</strong>
+            </div>
+            <p>Get your practices featured at the <strong>top of their state&rsquo;s results page</strong> with highlighted listing badges. Simply add a link back to GoDental.au from each practice website.</p>
+            <label class="checkbox-label premium-checkbox">
+              <input type="checkbox" name="premium_backlink">
+              <span>I have added (or will add) a link to <strong>godental.au</strong> on the practice website(s) in exchange for premium listing placement</span>
+            </label>
+            <p class="premium-note"><i class="fa-solid fa-circle-info"></i> We&rsquo;ll verify backlinks before activating premium placements. Links can be in footers, partner pages, or link pages.</p>
+          </div>
+
+          <button type="submit" class="btn btn-call btn-lg btn-submit">Submit Bulk Listing for Review</button>
+          <p class="form-note">Bulk submissions are reviewed manually. We&rsquo;ll be in touch within a few business days.</p>
+        </form>
+      </div>
+
+      <aside class="detail-sidebar">
+        <div class="sidebar-card">
+          <h3>Listing Guidelines</h3>
+          <ul class="sidebar-links guidelines">
+            <li>Must be an Australian dental practice</li>
+            <li>Accurate, current contact details required</li>
+            <li>No product companies or non-dental businesses</li>
+            <li>No agency or third-party submissions</li>
+            <li>One listing per physical location</li>
+            <li>Listings are free of charge</li>
+          </ul>
+        </div>
+        <div class="sidebar-card" style="margin-top: 1rem;">
+          <h3>Need Help?</h3>
+          <p class="sidebar-address">Email us at <a href="mailto:hello@godental.au">hello@godental.au</a> if you have any questions about the listing process.</p>
+        </div>
+      </aside>
+    </div>
+  </main>
+  <script>
+    function handleSubmit(e) {
+      e.preventDefault();
+      var form = e.target;
+      var btn = form.querySelector('.btn-submit');
+      btn.textContent = "Submitted! We will be in touch.";
+      btn.disabled = true;
+      btn.style.opacity = '0.7';
+      form.querySelectorAll('input, textarea, select').forEach(function(el) { el.disabled = true; });
+    }
+    function handleBulkSubmit(e) {
+      e.preventDefault();
+      var form = e.target;
+      var btn = form.querySelector('.btn-submit');
+      btn.textContent = "Submitted! We will be in touch.";
+      btn.disabled = true;
+      btn.style.opacity = '0.7';
+      form.querySelectorAll('input, textarea, select').forEach(function(el) { el.disabled = true; });
+    }
+    document.querySelectorAll('.form-tab').forEach(function(tab) {
+      tab.addEventListener('click', function() {
+        document.querySelectorAll('.form-tab').forEach(function(t) { t.classList.remove('active'); });
+        tab.classList.add('active');
+        var target = tab.getAttribute('data-tab');
+        document.getElementById('single-form').style.display = target === 'single' ? '' : 'none';
+        document.getElementById('bulk-form').style.display = target === 'bulk' ? '' : 'none';
+      });
+    });
+  </script>
+  <footer class="site-footer">
+    <div class="container">
+      <p>&copy; 2026 GoDental.au. All rights reserved.</p>
+    </div>
+  </footer>
+  <script>
+    document.querySelector('.nav-toggle').addEventListener('click', function() {
+      document.querySelector('.site-nav').classList.toggle('open');
+    });
+  </script>
+</body>
+</html>
