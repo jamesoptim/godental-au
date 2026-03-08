@@ -1,3 +1,11 @@
 node_modules/
 .DS_Store
 *.log
+
+# Dev tools (not needed for static site deploy)
+package.json
+package-lock.json
+capture-screenshots.js
+scrape-reviews.js
+generate-sitemap.js
+reviews.json
