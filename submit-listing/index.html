@@ -52,7 +52,12 @@
           <button class="form-tab" data-tab="bulk"><i class="fa-solid fa-buildings"></i> Bulk Submission</button>
         </div>
 
-        <form class="listing-form" id="single-form" action="#" method="POST" onsubmit="handleSubmit(event)">
+        <form class="listing-form" id="single-form" action="https://formsubmit.co/james@jamesis.co" method="POST">
+          <input type="hidden" name="_subject" value="GoDental.au — New Listing Submission">
+          <input type="hidden" name="_captcha" value="false">
+          <input type="hidden" name="_next" value="https://godental.au/submit-listing/?success=1">
+          <input type="hidden" name="_template" value="table">
+          <input type="text" name="_honey" style="display:none">
           <fieldset>
             <legend>Practice Details</legend>
 
@@ -161,7 +166,12 @@
           <p class="form-note">Submissions are reviewed manually. We&rsquo;ll be in touch within a few business days.</p>
         </form>
 
-        <form class="listing-form bulk-form" id="bulk-form" style="display:none;" action="#" method="POST" onsubmit="handleBulkSubmit(event)">
+        <form class="listing-form bulk-form" id="bulk-form" style="display:none;" action="https://formsubmit.co/james@jamesis.co" method="POST">
+          <input type="hidden" name="_subject" value="GoDental.au — Bulk Listing Submission">
+          <input type="hidden" name="_captcha" value="false">
+          <input type="hidden" name="_next" value="https://godental.au/submit-listing/?success=1">
+          <input type="hidden" name="_template" value="table">
+          <input type="text" name="_honey" style="display:none">
           <fieldset>
             <legend><i class="fa-solid fa-list"></i> Bulk Practice Submission</legend>
             <p style="color:#475569; margin-bottom:1rem; line-height:1.7;">Submitting multiple practices? Paste your practice details below in CSV format, or describe each practice separated by a blank line. We&rsquo;ll process them all together.</p>
@@ -238,23 +248,16 @@
     </div>
   </main>
   <script>
-    function handleSubmit(e) {
-      e.preventDefault();
-      var form = e.target;
-      var btn = form.querySelector('.btn-submit');
-      btn.textContent = "Submitted! We will be in touch.";
-      btn.disabled = true;
-      btn.style.opacity = '0.7';
-      form.querySelectorAll('input, textarea, select').forEach(function(el) { el.disabled = true; });
-    }
-    function handleBulkSubmit(e) {
-      e.preventDefault();
-      var form = e.target;
-      var btn = form.querySelector('.btn-submit');
-      btn.textContent = "Submitted! We will be in touch.";
-      btn.disabled = true;
-      btn.style.opacity = '0.7';
-      form.querySelectorAll('input, textarea, select').forEach(function(el) { el.disabled = true; });
+    if (window.location.search.indexOf('success=1') !== -1) {
+      var forms = document.querySelectorAll('.listing-form');
+      forms.forEach(function(f) { f.style.display = 'none'; });
+      var tabs = document.querySelector('.form-tabs');
+      if (tabs) tabs.style.display = 'none';
+      var msg = document.createElement('div');
+      msg.style.cssText = 'background:#e8f5e9;border:2px solid #43a047;border-radius:12px;padding:2.5rem;text-align:center;margin:2rem 0;';
+      msg.innerHTML = '<h2 style="color:#2e7d32;margin-bottom:0.5rem;">✓ Listing Submitted!</h2><p style="font-size:1.1rem;color:#333;">Thanks for submitting your practice. We\'ll review it and be in touch shortly.</p><a href="/submit-listing/" style="display:inline-block;margin-top:1rem;color:#0077b6;">Submit another listing</a>';
+      var main = document.querySelector('.listing-form-section') || document.querySelector('main');
+      if (main) main.prepend(msg);
     }
     document.querySelectorAll('.form-tab').forEach(function(tab) {
       tab.addEventListener('click', function() {
