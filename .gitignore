@@ -10,3 +10,10 @@ scrape-reviews.js
 generate-sitemap.js
 reviews.json
 australian_postcodes.csv
+
+# wrangler files
+.wrangler
+.dev.vars*
+!.dev.vars.example
+.env*
+!.env.example
