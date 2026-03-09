@@ -3497,14 +3497,14 @@ function stateNav(currentSlug) {
 // HTML TEMPLATES
 // ============================================================
 
-function htmlShell({ title, metaDescription, bodyClass, content, canonical }) {
+function htmlShell({ title, metaDescription, bodyClass, content, canonical, noindex }) {
   return `<!DOCTYPE html>
 <html lang="en-AU">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>${escapeHtml(title)}</title>
-  <meta name="description" content="${escapeHtml(metaDescription)}">
+  <meta name="description" content="${escapeHtml(metaDescription)}">${noindex ? '\n  <meta name="robots" content="noindex, nofollow">' : ''}
   <link rel="icon" href="/favicon.ico" sizes="32x32">
   <link rel="icon" href="/images/favicon-192.png" type="image/png" sizes="192x192">
   <link rel="apple-touch-icon" href="/images/apple-touch-icon.png">
@@ -3536,6 +3536,101 @@ function htmlShell({ title, metaDescription, bodyClass, content, canonical }) {
 </html>`;
 }
 
+// --- Postcode / Geocoding helpers ---
+function loadPostcodeData() {
+  const csvPath = path.join(__dirname, 'australian_postcodes.csv');
+  if (!fs.existsSync(csvPath)) {
+    console.warn('  ⚠ australian_postcodes.csv not found — search data will not be generated');
+    return null;
+  }
+  const raw = fs.readFileSync(csvPath, 'utf-8');
+  const lines = raw.split('\n').filter(l => l.trim());
+  const header = lines[0].split(',').map(h => h.replace(/"/g, '').trim());
+  const postcodeIdx = header.indexOf('postcode');
+  const localityIdx = header.indexOf('locality');
+  const stateIdx = header.indexOf('state');
+  const longIdx = header.indexOf('long');
+  const latIdx = header.indexOf('lat');
+
+  // postcodeMap: postcode -> { lat, lng, suburb, state } (first occurrence wins)
+  const postcodeMap = {};
+  // suburbs: array of { suburb, state, postcode, lat, lng } (deduplicated by suburb+state)
+  const suburbSet = new Set();
+  const suburbs = [];
+
+  for (let i = 1; i < lines.length; i++) {
+    // CSV fields are uniformly quoted — split on comma and strip quotes
+    const fields = lines[i].split(',').map(f => f.replace(/^"|"$/g, '').trim());
+    const pc = fields[postcodeIdx] || '';
+    const locality = fields[localityIdx] || '';
+    const st = fields[stateIdx] || '';
+    const lng = parseFloat(fields[longIdx] || '');
+    const lat = parseFloat(fields[latIdx] || '');
+
+    if (!pc || !locality || !st || isNaN(lat) || isNaN(lng)) continue;
+
+    // First occurrence per postcode for the postcode map
+    if (!postcodeMap[pc]) {
+      postcodeMap[pc] = { lat, lng, suburb: locality, state: st };
+    }
+
+    // Deduplicate suburbs by locality+state
+    const key = `${locality.toUpperCase()}|${st}`;
+    if (!suburbSet.has(key)) {
+      suburbSet.add(key);
+      suburbs.push({
+        suburb: locality.toLowerCase().replace(/\b\w/g, c => c.toUpperCase()),
+        state: st,
+        postcode: pc,
+        lat: Math.round(lat * 10000) / 10000,
+        lng: Math.round(lng * 10000) / 10000,
+      });
+    }
+  }
+
+  suburbs.sort((a, b) => a.suburb.localeCompare(b.suburb));
+  console.log(`  Loaded ${Object.keys(postcodeMap).length} postcodes, ${suburbs.length} unique suburbs`);
+  return { postcodeMap, suburbs };
+}
+
+function generateSearchData(postcodeMap) {
+  const searchData = [];
+  let matched = 0;
+  let unmatched = 0;
+
+  for (const state of states) {
+    for (const p of practices[state.slug]) {
+      // Extract 4-digit postcode from end of address (last 4-digit number)
+      const pcMatch = p.address.match(/\b(\d{4})\s*$/);
+      const postcode = pcMatch ? pcMatch[1] : null;
+      const geo = postcode ? postcodeMap[postcode] : null;
+
+      if (geo) {
+        searchData.push({
+          name: p.name,
+          slug: p.slug,
+          state: state.slug,
+          stateAbbr: state.abbr,
+          suburb: p.suburb,
+          address: p.address,
+          phone: p.phone,
+          lat: Math.round(geo.lat * 10000) / 10000,
+          lng: Math.round(geo.lng * 10000) / 10000,
+          featured: p.featured || false,
+          services: p.services ? p.services.slice(0, 5) : [],
+        });
+        matched++;
+      } else {
+        console.warn(`    ⚠ No geocode for: ${p.name} (${p.address})`);
+        unmatched++;
+      }
+    }
+  }
+
+  console.log(`  Search data: ${matched} geocoded, ${unmatched} unmatched`);
+  return searchData;
+}
+
 // --- Homepage ---
 function buildHomepage() {
   const stateCards = states
@@ -3560,6 +3655,15 @@ function buildHomepage() {
     <div class="container hero-content">
       <h1>Find Your Perfect Dentist</h1>
       <p class="hero-sub">Australia&rsquo;s trusted dental directory &mdash; browse ${totalPractices} verified practices across every state and territory.</p>
+      <div class="search-wrap">
+        <div class="search-bar">
+          <i class="fa-solid fa-magnifying-glass search-icon"></i>
+          <input type="text" id="search-input" class="search-input"
+                 placeholder="Search by suburb or postcode..."
+                 autocomplete="off" aria-label="Search by suburb or postcode">
+          <ul id="search-autocomplete" class="search-autocomplete" role="listbox"></ul>
+        </div>
+      </div>
       <div class="hero-stats">
         <div class="hero-stat"><i class="fa-solid fa-tooth hero-stat-icon"></i><span class="hero-stat-number">${totalPractices}</span><span class="hero-stat-label">Practices</span></div>
         <div class="hero-stat"><i class="fa-solid fa-map-location-dot hero-stat-icon"></i><span class="hero-stat-number">${states.length}</span><span class="hero-stat-label">States &amp; Territories</span></div>
@@ -3579,7 +3683,103 @@ function buildHomepage() {
         <a href="/submit-listing/" class="btn btn-call btn-lg">Submit Your Listing</a>
       </div>
     </section>
-  </main>`;
+  </main>
+  <script>
+  (function(){
+    var input = document.getElementById('search-input');
+    var ac = document.getElementById('search-autocomplete');
+    var suburbs = null;
+    var activeIdx = -1;
+
+    function loadSuburbs(cb) {
+      if (suburbs) return cb();
+      fetch('/suburbs.json').then(function(r){ return r.json(); }).then(function(data){
+        suburbs = data;
+        cb();
+      });
+    }
+
+    function render(matches) {
+      if (!matches.length) { ac.classList.remove('open'); ac.innerHTML = ''; activeIdx = -1; return; }
+      ac.innerHTML = matches.map(function(m, i){
+        return '<li role="option" data-idx="' + i + '">'
+          + '<span class="ac-suburb">' + esc(m.suburb) + '</span>'
+          + '<span class="ac-meta">' + esc(m.postcode) + ', ' + esc(m.state) + '</span>'
+          + '</li>';
+      }).join('');
+      ac.classList.add('open');
+      activeIdx = -1;
+    }
+
+    function esc(s) {
+      var d = document.createElement('div'); d.textContent = s; return d.innerHTML;
+    }
+
+    function navigate(m) {
+      window.location.href = '/search/?q=' + encodeURIComponent(m.postcode)
+        + '&suburb=' + encodeURIComponent(m.suburb)
+        + '&state=' + encodeURIComponent(m.state);
+    }
+
+    function setActive(idx) {
+      var items = ac.querySelectorAll('li');
+      items.forEach(function(li){ li.classList.remove('active'); });
+      if (idx >= 0 && idx < items.length) {
+        items[idx].classList.add('active');
+        items[idx].scrollIntoView({ block: 'nearest' });
+      }
+      activeIdx = idx;
+    }
+
+    input.addEventListener('input', function(){
+      var val = this.value.trim().toLowerCase();
+      if (val.length < 2) { ac.classList.remove('open'); ac.innerHTML = ''; return; }
+      loadSuburbs(function(){
+        var isNum = /^\\d+$/.test(val);
+        var matches = suburbs.filter(function(s){
+          if (isNum) return s.postcode.indexOf(val) === 0;
+          return s.suburb.toLowerCase().indexOf(val) === 0;
+        }).slice(0, 8);
+        render(matches);
+      });
+    });
+
+    input.addEventListener('keydown', function(e){
+      var items = ac.querySelectorAll('li');
+      if (!items.length) return;
+      if (e.key === 'ArrowDown') { e.preventDefault(); setActive(Math.min(activeIdx + 1, items.length - 1)); }
+      else if (e.key === 'ArrowUp') { e.preventDefault(); setActive(Math.max(activeIdx - 1, 0)); }
+      else if (e.key === 'Enter' && activeIdx >= 0) {
+        e.preventDefault();
+        var idx = activeIdx;
+        var val = input.value.trim().toLowerCase();
+        var isNum = /^\\d+$/.test(val);
+        var matches = suburbs.filter(function(s){
+          if (isNum) return s.postcode.indexOf(val) === 0;
+          return s.suburb.toLowerCase().indexOf(val) === 0;
+        }).slice(0, 8);
+        if (matches[idx]) navigate(matches[idx]);
+      }
+    });
+
+    ac.addEventListener('click', function(e){
+      var li = e.target.closest('li');
+      if (!li) return;
+      var val = input.value.trim().toLowerCase();
+      var isNum = /^\\d+$/.test(val);
+      var matches = suburbs.filter(function(s){
+        if (isNum) return s.postcode.indexOf(val) === 0;
+        return s.suburb.toLowerCase().indexOf(val) === 0;
+      }).slice(0, 8);
+      var idx = parseInt(li.getAttribute('data-idx'));
+      if (matches[idx]) navigate(matches[idx]);
+    });
+
+    document.addEventListener('click', function(e){
+      if (!e.target.closest('.search-bar')) { ac.classList.remove('open'); }
+    });
+  })();
+  </script>`;
 
   return htmlShell({
     title: 'GoDental.au — Find a Dentist Near You',
@@ -4179,6 +4379,251 @@ function buildSubmitListingPage() {
   });
 }
 
+// --- Search results page ---
+function buildSearchPage() {
+  const content = `
+  <main class="container search-page">
+    <div class="search-header">
+      <h1 id="search-title">Search Results</h1>
+      <div class="search-wrap">
+        <div class="search-bar">
+          <i class="fa-solid fa-magnifying-glass search-icon"></i>
+          <input type="text" id="search-input" class="search-input"
+                 placeholder="Search by suburb or postcode..."
+                 autocomplete="off" aria-label="Search by suburb or postcode">
+          <ul id="search-autocomplete" class="search-autocomplete" role="listbox"></ul>
+        </div>
+      </div>
+    </div>
+    <p id="search-status" class="search-status"></p>
+    <div id="search-results">
+      <div class="search-loading">
+        <i class="fa-solid fa-spinner"></i>
+        <p>Searching nearby practices&hellip;</p>
+      </div>
+    </div>
+  </main>
+  <script>
+  (function(){
+    // --- Autocomplete (same as homepage) ---
+    var input = document.getElementById('search-input');
+    var ac = document.getElementById('search-autocomplete');
+    var suburbsData = null;
+    var activeIdx = -1;
+
+    function loadSuburbs(cb) {
+      if (suburbsData) return cb();
+      fetch('/suburbs.json').then(function(r){ return r.json(); }).then(function(data){
+        suburbsData = data; cb();
+      });
+    }
+
+    function renderAC(matches) {
+      if (!matches.length) { ac.classList.remove('open'); ac.innerHTML = ''; activeIdx = -1; return; }
+      ac.innerHTML = matches.map(function(m, i){
+        return '<li role="option" data-idx="' + i + '">'
+          + '<span class="ac-suburb">' + esc(m.suburb) + '</span>'
+          + '<span class="ac-meta">' + esc(m.postcode) + ', ' + esc(m.state) + '</span>'
+          + '</li>';
+      }).join('');
+      ac.classList.add('open');
+      activeIdx = -1;
+    }
+
+    function esc(s) { var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+
+    function goSearch(m) {
+      window.location.href = '/search/?q=' + encodeURIComponent(m.postcode)
+        + '&suburb=' + encodeURIComponent(m.suburb)
+        + '&state=' + encodeURIComponent(m.state);
+    }
+
+    function setActive(idx) {
+      var items = ac.querySelectorAll('li');
+      items.forEach(function(li){ li.classList.remove('active'); });
+      if (idx >= 0 && idx < items.length) {
+        items[idx].classList.add('active');
+        items[idx].scrollIntoView({ block: 'nearest' });
+      }
+      activeIdx = idx;
+    }
+
+    input.addEventListener('input', function(){
+      var val = this.value.trim().toLowerCase();
+      if (val.length < 2) { ac.classList.remove('open'); ac.innerHTML = ''; return; }
+      loadSuburbs(function(){
+        var isNum = /^\\d+$/.test(val);
+        var matches = suburbsData.filter(function(s){
+          if (isNum) return s.postcode.indexOf(val) === 0;
+          return s.suburb.toLowerCase().indexOf(val) === 0;
+        }).slice(0, 8);
+        renderAC(matches);
+      });
+    });
+
+    input.addEventListener('keydown', function(e){
+      var items = ac.querySelectorAll('li');
+      if (!items.length) return;
+      if (e.key === 'ArrowDown') { e.preventDefault(); setActive(Math.min(activeIdx + 1, items.length - 1)); }
+      else if (e.key === 'ArrowUp') { e.preventDefault(); setActive(Math.max(activeIdx - 1, 0)); }
+      else if (e.key === 'Enter' && activeIdx >= 0) {
+        e.preventDefault();
+        var val = input.value.trim().toLowerCase();
+        var isNum = /^\\d+$/.test(val);
+        var matches = suburbsData.filter(function(s){
+          if (isNum) return s.postcode.indexOf(val) === 0;
+          return s.suburb.toLowerCase().indexOf(val) === 0;
+        }).slice(0, 8);
+        if (matches[activeIdx]) goSearch(matches[activeIdx]);
+      }
+    });
+
+    ac.addEventListener('click', function(e){
+      var li = e.target.closest('li');
+      if (!li) return;
+      var val = input.value.trim().toLowerCase();
+      var isNum = /^\\d+$/.test(val);
+      var matches = suburbsData.filter(function(s){
+        if (isNum) return s.postcode.indexOf(val) === 0;
+        return s.suburb.toLowerCase().indexOf(val) === 0;
+      }).slice(0, 8);
+      var idx = parseInt(li.getAttribute('data-idx'));
+      if (matches[idx]) goSearch(matches[idx]);
+    });
+
+    document.addEventListener('click', function(e){
+      if (!e.target.closest('.search-bar')) ac.classList.remove('open');
+    });
+
+    // --- Search logic ---
+    function haversine(lat1, lng1, lat2, lng2) {
+      var R = 6371;
+      var dLat = (lat2 - lat1) * Math.PI / 180;
+      var dLng = (lng2 - lng1) * Math.PI / 180;
+      var a = Math.sin(dLat/2) * Math.sin(dLat/2)
+            + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180)
+            * Math.sin(dLng/2) * Math.sin(dLng/2);
+      return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    }
+
+    function renderCard(p) {
+      var distStr = p.distance < 1 ? '< 1 km' : p.distance.toFixed(1) + ' km';
+      var tags = (p.services || []).map(function(s){ return '<span class="tag">' + esc(s) + '</span>'; }).join(' ');
+      var featuredBadge = p.featured ? '<span class="featured-badge"><i class="fa-solid fa-star"></i> Featured</span>' : '';
+      var featuredClass = p.featured ? ' featured' : '';
+
+      return '<a href="/' + esc(p.state) + '/' + esc(p.slug) + '/" class="practice-card' + featuredClass + '">'
+        + '<div class="practice-card-body">'
+        + '<div class="practice-card-header">'
+        + '<h3>' + esc(p.name) + '</h3>'
+        + featuredBadge
+        + '<span class="distance-badge"><i class="fa-solid fa-location-dot"></i> ' + distStr + '</span>'
+        + '</div>'
+        + '<p class="practice-card-suburb"><i class="fa-solid fa-map-marker-alt"></i> ' + esc(p.suburb) + ', ' + esc(p.stateAbbr) + '</p>'
+        + '<p class="practice-card-address">' + esc(p.address) + '</p>'
+        + (tags ? '<div class="practice-card-tags">' + tags + '</div>' : '')
+        + '</div>'
+        + '<div class="practice-card-action"><span class="btn btn-outline">View Details</span></div>'
+        + '</a>';
+    }
+
+    var params = new URLSearchParams(window.location.search);
+    var q = params.get('q');
+    var suburbName = params.get('suburb') || '';
+    var stateName = params.get('state') || '';
+
+    if (!q) {
+      document.getElementById('search-results').innerHTML =
+        '<div class="no-results-msg"><i class="fa-solid fa-magnifying-glass"></i>'
+        + '<h2>Search for a suburb or postcode</h2>'
+        + '<p>Use the search bar above to find dental practices near you.</p></div>';
+      document.getElementById('search-status').textContent = '';
+      return;
+    }
+
+    // Pre-fill the search input
+    input.value = suburbName ? suburbName + ' ' + q : q;
+
+    // Update title
+    if (suburbName) {
+      document.getElementById('search-title').textContent = 'Dentists near ' + suburbName + ', ' + stateName;
+      document.title = 'Dentists near ' + suburbName + ', ' + stateName + ' — GoDental.au';
+    }
+
+    // Fetch search data
+    Promise.all([
+      fetch('/search-data.json').then(function(r){ return r.json(); }),
+      fetch('/suburbs.json').then(function(r){ return r.json(); })
+    ]).then(function(results) {
+      var practices = results[0];
+      var suburbs = results[1];
+      suburbsData = suburbs; // cache for autocomplete
+
+      // Find the search location coordinates
+      var searchLoc = null;
+      for (var i = 0; i < suburbs.length; i++) {
+        if (suburbs[i].postcode === q) {
+          // If suburb name matches too, prefer that one
+          if (suburbName && suburbs[i].suburb.toLowerCase() === suburbName.toLowerCase()) {
+            searchLoc = suburbs[i];
+            break;
+          }
+          if (!searchLoc) searchLoc = suburbs[i];
+        }
+      }
+
+      if (!searchLoc) {
+        document.getElementById('search-results').innerHTML =
+          '<div class="no-results-msg"><i class="fa-solid fa-map-marker-alt"></i>'
+          + '<h2>Location not found</h2>'
+          + '<p>We couldn\\u2019t find a location for postcode "' + esc(q) + '". Please try another search.</p></div>';
+        document.getElementById('search-status').textContent = '';
+        return;
+      }
+
+      // Calculate distances
+      var withDist = practices.map(function(p){
+        p.distance = haversine(searchLoc.lat, searchLoc.lng, p.lat, p.lng);
+        return p;
+      }).sort(function(a, b){ return a.distance - b.distance; });
+
+      // Filter within 25km
+      var nearby = withDist.filter(function(p){ return p.distance <= 25; });
+
+      var container = document.getElementById('search-results');
+      var status = document.getElementById('search-status');
+
+      if (nearby.length > 0) {
+        status.textContent = 'Showing ' + nearby.length + ' practice' + (nearby.length !== 1 ? 's' : '') + ' within 25 km of ' + (suburbName || q);
+        container.innerHTML = '<div class="practice-list">'
+          + nearby.map(renderCard).join('')
+          + '</div>';
+      } else {
+        // Show nearest 5 as fallback
+        var nearest = withDist.slice(0, 5);
+        status.textContent = '';
+        container.innerHTML =
+          '<div class="no-results-msg"><i class="fa-solid fa-map-marker-alt"></i>'
+          + '<h2>No practices within 25 km</h2>'
+          + '<p>We couldn\\u2019t find any practices within 25 km of ' + esc(suburbName || q) + '. Here are the closest:</p></div>'
+          + '<h3 class="nearest-heading">Nearest practices</h3>'
+          + '<div class="practice-list">'
+          + nearest.map(renderCard).join('')
+          + '</div>';
+      }
+    });
+  })();
+  </script>`;
+
+  return htmlShell({
+    title: 'Search Results — GoDental.au',
+    metaDescription: 'Search for dental practices near your suburb or postcode across Australia.',
+    bodyClass: 'page-search',
+    content,
+    noindex: true,
+  });
+}
+
 // ============================================================
 // BUILD ALL PAGES
 // ============================================================
@@ -4268,8 +4713,26 @@ function build() {
   fs.writeFileSync(path.join(submitDir, 'index.html'), buildSubmitListingPage());
   console.log('  submit-listing/index.html');
 
-  const total = 1 + states.length + practiceCount + 2;
-  console.log(`\nDone! Built 1 homepage + ${states.length} state pages + ${practiceCount} practice pages + 2 extra pages = ${total} pages total.`);
+  // 5. Search data + search page
+  const postcodeData = loadPostcodeData();
+  let searchPageCount = 0;
+  if (postcodeData) {
+    const searchData = generateSearchData(postcodeData.postcodeMap);
+    fs.writeFileSync(path.join(outDir, 'search-data.json'), JSON.stringify(searchData));
+    console.log(`  search-data.json (${searchData.length} practices)`);
+
+    fs.writeFileSync(path.join(outDir, 'suburbs.json'), JSON.stringify(postcodeData.suburbs));
+    console.log(`  suburbs.json (${postcodeData.suburbs.length} suburbs)`);
+
+    const searchDir = path.join(outDir, 'search');
+    ensureDir(searchDir);
+    fs.writeFileSync(path.join(searchDir, 'index.html'), buildSearchPage());
+    console.log('  search/index.html');
+    searchPageCount = 1;
+  }
+
+  const total = 1 + states.length + practiceCount + 2 + searchPageCount;
+  console.log(`\nDone! Built 1 homepage + ${states.length} state pages + ${practiceCount} practice pages + 2 extra pages + ${searchPageCount} search page = ${total} pages total.`);
 }
 
 build();

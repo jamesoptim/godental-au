@@ -39,6 +39,15 @@
     <div class="container hero-content">
       <h1>Find Your Perfect Dentist</h1>
       <p class="hero-sub">Australia&rsquo;s trusted dental directory &mdash; browse 185 verified practices across every state and territory.</p>
+      <div class="search-wrap">
+        <div class="search-bar">
+          <i class="fa-solid fa-magnifying-glass search-icon"></i>
+          <input type="text" id="search-input" class="search-input"
+                 placeholder="Search by suburb or postcode..."
+                 autocomplete="off" aria-label="Search by suburb or postcode">
+          <ul id="search-autocomplete" class="search-autocomplete" role="listbox"></ul>
+        </div>
+      </div>
       <div class="hero-stats">
         <div class="hero-stat"><i class="fa-solid fa-tooth hero-stat-icon"></i><span class="hero-stat-number">185</span><span class="hero-stat-label">Practices</span></div>
         <div class="hero-stat"><i class="fa-solid fa-map-location-dot hero-stat-icon"></i><span class="hero-stat-number">8</span><span class="hero-stat-label">States &amp; Territories</span></div>
@@ -106,6 +115,102 @@
       </div>
     </section>
   </main>
+  <script>
+  (function(){
+    var input = document.getElementById('search-input');
+    var ac = document.getElementById('search-autocomplete');
+    var suburbs = null;
+    var activeIdx = -1;
+
+    function loadSuburbs(cb) {
+      if (suburbs) return cb();
+      fetch('/suburbs.json').then(function(r){ return r.json(); }).then(function(data){
+        suburbs = data;
+        cb();
+      });
+    }
+
+    function render(matches) {
+      if (!matches.length) { ac.classList.remove('open'); ac.innerHTML = ''; activeIdx = -1; return; }
+      ac.innerHTML = matches.map(function(m, i){
+        return '<li role="option" data-idx="' + i + '">'
+          + '<span class="ac-suburb">' + esc(m.suburb) + '</span>'
+          + '<span class="ac-meta">' + esc(m.postcode) + ', ' + esc(m.state) + '</span>'
+          + '</li>';
+      }).join('');
+      ac.classList.add('open');
+      activeIdx = -1;
+    }
+
+    function esc(s) {
+      var d = document.createElement('div'); d.textContent = s; return d.innerHTML;
+    }
+
+    function navigate(m) {
+      window.location.href = '/search/?q=' + encodeURIComponent(m.postcode)
+        + '&suburb=' + encodeURIComponent(m.suburb)
+        + '&state=' + encodeURIComponent(m.state);
+    }
+
+    function setActive(idx) {
+      var items = ac.querySelectorAll('li');
+      items.forEach(function(li){ li.classList.remove('active'); });
+      if (idx >= 0 && idx < items.length) {
+        items[idx].classList.add('active');
+        items[idx].scrollIntoView({ block: 'nearest' });
+      }
+      activeIdx = idx;
+    }
+
+    input.addEventListener('input', function(){
+      var val = this.value.trim().toLowerCase();
+      if (val.length < 2) { ac.classList.remove('open'); ac.innerHTML = ''; return; }
+      loadSuburbs(function(){
+        var isNum = /^\d+$/.test(val);
+        var matches = suburbs.filter(function(s){
+          if (isNum) return s.postcode.indexOf(val) === 0;
+          return s.suburb.toLowerCase().indexOf(val) === 0;
+        }).slice(0, 8);
+        render(matches);
+      });
+    });
+
+    input.addEventListener('keydown', function(e){
+      var items = ac.querySelectorAll('li');
+      if (!items.length) return;
+      if (e.key === 'ArrowDown') { e.preventDefault(); setActive(Math.min(activeIdx + 1, items.length - 1)); }
+      else if (e.key === 'ArrowUp') { e.preventDefault(); setActive(Math.max(activeIdx - 1, 0)); }
+      else if (e.key === 'Enter' && activeIdx >= 0) {
+        e.preventDefault();
+        var idx = activeIdx;
+        var val = input.value.trim().toLowerCase();
+        var isNum = /^\d+$/.test(val);
+        var matches = suburbs.filter(function(s){
+          if (isNum) return s.postcode.indexOf(val) === 0;
+          return s.suburb.toLowerCase().indexOf(val) === 0;
+        }).slice(0, 8);
+        if (matches[idx]) navigate(matches[idx]);
+      }
+    });
+
+    ac.addEventListener('click', function(e){
+      var li = e.target.closest('li');
+      if (!li) return;
+      var val = input.value.trim().toLowerCase();
+      var isNum = /^\d+$/.test(val);
+      var matches = suburbs.filter(function(s){
+        if (isNum) return s.postcode.indexOf(val) === 0;
+        return s.suburb.toLowerCase().indexOf(val) === 0;
+      }).slice(0, 8);
+      var idx = parseInt(li.getAttribute('data-idx'));
+      if (matches[idx]) navigate(matches[idx]);
+    });
+
+    document.addEventListener('click', function(e){
+      if (!e.target.closest('.search-bar')) { ac.classList.remove('open'); }
+    });
+  })();
+  </script>
   <footer class="site-footer">
     <div class="container">
       <p>&copy; 2026 GoDental.au. All rights reserved.</p>
