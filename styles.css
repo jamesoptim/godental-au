@@ -1070,6 +1070,56 @@ ul {
   font-size: 0.85rem;
 }
 
+/* --- Featured Listings --- */
+.practice-card.featured {
+  border: 2px solid #f59e0b;
+  background: linear-gradient(135deg, #fffbeb, #ffffff);
+}
+
+.practice-card.featured:hover {
+  border-color: #d97706;
+  box-shadow: 0 8px 24px rgba(245, 158, 11, 0.15), 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.featured-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  color: #fff;
+  font-size: 0.68rem;
+  font-weight: 800;
+  padding: 0.15rem 0.6rem;
+  border-radius: 999px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-left: 0.5rem;
+  vertical-align: middle;
+}
+
+.featured-badge i {
+  font-size: 0.6rem;
+}
+
+.detail-featured-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 800;
+  padding: 0.3rem 0.85rem;
+  border-radius: 999px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.75rem;
+}
+
+.detail-featured-badge i {
+  font-size: 0.7rem;
+}
+
 /* ============================================================
    Responsive
    ============================================================ */
