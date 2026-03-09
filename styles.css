@@ -1120,6 +1120,206 @@ ul {
   font-size: 0.7rem;
 }
 
+/* --- See More / Pagination --- */
+.practice-hidden {
+  display: none;
+}
+
+.see-more-wrap {
+  text-align: center;
+  padding: 1.5rem 0 2rem;
+}
+
+.btn-see-more {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: linear-gradient(135deg, #0d9488, #0f766e);
+  color: #fff;
+  padding: 0.85rem 2rem;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  border: none;
+  box-shadow: 0 2px 8px rgba(13, 148, 136, 0.25);
+  transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+}
+
+.btn-see-more:hover {
+  background: linear-gradient(135deg, #0f766e, #115e59);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(13, 148, 136, 0.3);
+}
+
+.btn-see-more i {
+  font-size: 0.8rem;
+  transition: transform 0.2s;
+}
+
+.see-more-count {
+  color: #94a3b8;
+  font-size: 0.85rem;
+  margin-top: 0.75rem;
+}
+
+/* --- State Content Sections --- */
+.state-content-above,
+.state-content-below {
+  margin-bottom: 2rem;
+}
+
+.state-content-above h2,
+.state-content-below h2 {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 0.75rem;
+  letter-spacing: -0.3px;
+}
+
+.state-content-above p,
+.state-content-below p {
+  color: #475569;
+  line-height: 1.8;
+  margin-bottom: 0.75rem;
+  font-size: 0.95rem;
+}
+
+.state-content-below {
+  margin-top: 1rem;
+  padding-top: 2rem;
+  border-top: 1px solid #e2e8f0;
+}
+
+/* --- FAQ Section --- */
+.faq-section {
+  padding: 2rem 0;
+  border-top: 1px solid #e2e8f0;
+  margin-bottom: 1rem;
+}
+
+.faq-section h2 {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 1.25rem;
+  letter-spacing: -0.3px;
+}
+
+.faq-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.faq-item {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  overflow: hidden;
+  transition: border-color 0.2s;
+}
+
+.faq-item:hover {
+  border-color: #cbd5e1;
+}
+
+.faq-question {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.25rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #1e293b;
+  text-align: left;
+  gap: 1rem;
+  transition: color 0.15s;
+}
+
+.faq-question:hover {
+  color: #0d9488;
+}
+
+.faq-icon {
+  flex-shrink: 0;
+  font-size: 0.8rem;
+  color: #94a3b8;
+  transition: transform 0.25s;
+}
+
+.faq-answer {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease, padding 0.3s ease;
+  padding: 0 1.25rem;
+}
+
+.faq-answer p {
+  color: #475569;
+  line-height: 1.8;
+  font-size: 0.9rem;
+}
+
+.faq-open .faq-question {
+  color: #0d9488;
+}
+
+.faq-open .faq-icon {
+  transform: rotate(45deg);
+}
+
+.faq-open .faq-answer {
+  max-height: 500px;
+  padding: 0 1.25rem 1.25rem;
+}
+
+/* --- State CTA Banner --- */
+.state-cta {
+  background: linear-gradient(135deg, #134e4a, #0f766e);
+  border-radius: 14px;
+  padding: 2.5rem 2rem;
+  text-align: center;
+  margin: 2rem 0 3rem;
+}
+
+.state-cta h2 {
+  color: #fff;
+  font-size: 1.4rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.state-cta p {
+  color: #99f6e4;
+  margin-bottom: 1.25rem;
+  font-size: 0.95rem;
+}
+
+.state-cta .btn {
+  background: #16a34a;
+  color: #fff;
+  padding: 0.75rem 1.75rem;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 0.95rem;
+  text-decoration: none;
+  display: inline-block;
+  box-shadow: 0 2px 8px rgba(22, 163, 74, 0.3);
+  transition: background 0.2s, transform 0.15s;
+}
+
+.state-cta .btn:hover {
+  background: #15803d;
+  transform: translateY(-2px);
+}
+
 /* ============================================================
    Responsive
    ============================================================ */
@@ -1285,5 +1485,29 @@ ul {
   .hero-stat:last-child {
     border-bottom: none;
     padding-bottom: 0;
+  }
+
+  .faq-question {
+    font-size: 0.9rem;
+    padding: 0.85rem 1rem;
+  }
+
+  .state-content-above h2,
+  .state-content-below h2,
+  .faq-section h2 {
+    font-size: 1.15rem;
+  }
+
+  .state-cta {
+    padding: 2rem 1.25rem;
+  }
+
+  .state-cta h2 {
+    font-size: 1.2rem;
+  }
+
+  .btn-see-more {
+    width: 100%;
+    justify-content: center;
   }
 }

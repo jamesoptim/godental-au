@@ -3230,6 +3230,188 @@ const practices = {
 };
 
 // ============================================================
+// STATE PAGE CONTENT (intro, below-fold, FAQs)
+// ============================================================
+const stateContent = {
+  vic: {
+    intro: {
+      heading: 'Your Guide to Dentists in Victoria',
+      paragraphs: [
+        'Victoria is home to more than 6.7 million residents, with dental practices spread across Melbourne and major regional centres including Geelong, Ballarat, Bendigo, and the Mornington Peninsula. Whether you need a routine check-up in the CBD or specialist care in a growing outer suburb, our directory makes it easy to compare practices and find the right fit.',
+        'From family-friendly clinics offering children\'s dentistry and preventive care, to specialist practices focusing on cosmetic treatments, dental implants, and orthodontics, Victorian dentists cover a broad range of services to suit every patient and budget.',
+      ],
+    },
+    belowFold: {
+      heading: 'Dental Care Across Victoria',
+      paragraphs: [
+        'Victoria has one of the most developed dental networks in Australia, with practices across metropolitan Melbourne and well-serviced regional hubs. Many Victorian clinics offer extended evening and Saturday hours to accommodate busy schedules, and most accept major health funds with on-the-spot HICAPS claiming.',
+        'Regional areas like Gippsland, the Latrobe Valley, and Shepparton have seen strong growth in dental services over recent years, meaning quality care is increasingly accessible beyond Melbourne. If you are looking for emergency dental, cosmetic work, or simply a trusted local dentist, start by browsing the practices listed above.',
+      ],
+    },
+    faqs: [
+      { question: 'How do I find an emergency dentist in Melbourne?', answer: 'Several Melbourne dental practices offer same-day emergency appointments for issues like toothache, broken teeth, or dental trauma. Browse the Melbourne-based listings above and look for practices that include Emergency Dentistry in their services. Many CBD and inner-suburban clinics accept walk-in emergencies during business hours.' },
+      { question: 'Are there dentists in regional Victoria on GoDental.au?', answer: 'Yes — GoDental.au lists dental practices across regional Victoria including Geelong, Ballarat, Bendigo, Gippsland, Shepparton, and the Mornington Peninsula. Use the listings above to find practices outside metropolitan Melbourne.' },
+      { question: 'What should I expect at a first dental visit?', answer: 'A typical first visit in Victoria includes a comprehensive oral examination, X-rays if required, and a discussion about any concerns or symptoms. Most practices will provide a treatment plan and cost estimate before proceeding with any work. Health fund members can usually claim on the spot via HICAPS.' },
+      { question: 'Do Victorian dentists offer payment plans?', answer: 'Many dental practices across Victoria offer flexible payment options including interest-free payment plans, health fund claiming, and some accept government dental vouchers. Check individual practice listings for details on their payment and billing options.' },
+    ],
+  },
+  nsw: {
+    intro: {
+      heading: 'Your Guide to Dentists in New South Wales',
+      paragraphs: [
+        'New South Wales is Australia\'s most populous state, with over 8 million residents and dental practices spanning from Sydney\'s CBD and eastern suburbs to the Central Coast, Hunter Valley, Illawarra, and far-west regional towns. Our directory helps you compare practices by location, services, and contact details so you can book with confidence.',
+        'NSW dental clinics range from large multi-specialist practices in Sydney to trusted family dentists serving communities in Newcastle, Wollongong, the Blue Mountains, and beyond. Whether you need general check-ups, cosmetic work, orthodontics, or emergency care, you\'ll find a wide choice of providers listed here.',
+      ],
+    },
+    belowFold: {
+      heading: 'Dental Care Across New South Wales',
+      paragraphs: [
+        'Sydney and its surrounding regions are home to some of Australia\'s most advanced dental facilities, with many practices investing in digital scanning, same-day crowns, and laser dentistry. The city\'s competitive market means patients benefit from a strong range of services and extended appointment hours, including weekends.',
+        'Beyond Sydney, regional NSW has seen significant investment in dental infrastructure. Towns like Tamworth, Orange, Dubbo, and Wagga Wagga now offer comprehensive dental services that were once only available in the capital. If you live in regional NSW, browse the listings above — many practices are part of established networks with consistent quality and pricing.',
+      ],
+    },
+    faqs: [
+      { question: 'How do I find a dentist near me in Sydney?', answer: 'Browse the NSW listings above to find dental practices across Sydney — from the CBD and eastern suburbs to Parramatta, the Northern Beaches, and the Sutherland Shire. Each listing shows the full address and phone number so you can find and contact a practice close to your home or workplace.' },
+      { question: 'Are there bulk-billing dentists in NSW?', answer: 'Some NSW dental practices offer bulk-billing for eligible patients under the Child Dental Benefits Schedule (CDBS) or other government programs. Check individual listings or call the practice directly to ask about bulk-billing availability and eligibility requirements.' },
+      { question: 'What dental services are commonly available in NSW?', answer: 'Most NSW practices offer general dentistry, preventive care, teeth whitening, crowns and bridges, root canal treatment, and children\'s dentistry. Many also provide specialist services including dental implants, orthodontics, Invisalign, and oral surgery. Check the services listed on each practice page for details.' },
+      { question: 'Can I find an emergency dentist in Newcastle or Wollongong?', answer: 'Yes — GoDental.au lists multiple dental practices in both Newcastle and Wollongong that offer emergency dental services. Look for practices listing Emergency Dentistry in their services and call ahead to confirm same-day availability.' },
+    ],
+  },
+  qld: {
+    intro: {
+      heading: 'Your Guide to Dentists in Queensland',
+      paragraphs: [
+        'Queensland stretches from the Gold Coast and Brisbane to the Sunshine Coast, Townsville, Cairns, and Toowoomba, with dental practices serving communities across this vast state. Whether you\'re in a busy metropolitan area or a growing regional centre, our directory helps you find trusted dental care close to home.',
+        'Queensland dentists offer everything from routine check-ups and family dentistry to advanced cosmetic procedures, dental implants, and specialist oral surgery. Many practices cater to tourists and new residents with flexible appointment scheduling and modern facilities.',
+      ],
+    },
+    belowFold: {
+      heading: 'Dental Care Across Queensland',
+      paragraphs: [
+        'With a warm climate and active lifestyle, Queenslanders place a premium on dental health and aesthetics. Brisbane and the Gold Coast are home to numerous cosmetic and general dental practices, while the Sunshine Coast and Toowoomba offer well-established clinics serving growing populations.',
+        'North Queensland cities like Townsville and Cairns have developed strong dental services in recent years, including specialist and surgical practices. If you\'re relocating to or visiting Queensland, the listings above are a great starting point for finding quality dental care.',
+      ],
+    },
+    faqs: [
+      { question: 'How do I find a dentist on the Gold Coast or Sunshine Coast?', answer: 'Browse the QLD listings above to find dental practices on the Gold Coast, Sunshine Coast, and throughout South-East Queensland. Each listing includes a full address and phone number for easy contact.' },
+      { question: 'Are Queensland dentists open on weekends?', answer: 'Many Queensland dental practices offer Saturday morning appointments, and some larger practices in Brisbane and the Gold Coast are open on Sundays for emergencies. Check individual listings or call the practice to confirm weekend availability.' },
+      { question: 'What specialist dental services are available in QLD?', answer: 'Queensland has a wide range of dental specialists including orthodontists, periodontists, oral surgeons, and prosthodontists. Many general practices also offer specialist services in-house, such as dental implants and Invisalign. Browse the services listed on each practice page for details.' },
+      { question: 'Can I use my health fund at Queensland dentists?', answer: 'Most Queensland dental practices accept all major health funds and offer on-the-spot HICAPS claiming. Some also offer gap-free preventive treatments for eligible fund members. Contact the practice directly for details about your specific fund.' },
+    ],
+  },
+  sa: {
+    intro: {
+      heading: 'Your Guide to Dentists in South Australia',
+      paragraphs: [
+        'South Australia\'s dental practices are concentrated in Adelaide and its surrounding suburbs, with additional services available in regional centres like Mount Gambier, Murray Bridge, and the Barossa Valley. Our directory helps you compare local practices and find quality dental care that suits your needs.',
+        'From CBD practices offering cutting-edge cosmetic dentistry to suburban family clinics focused on preventive care and children\'s dentistry, South Australian dentists provide a broad range of services at competitive prices.',
+      ],
+    },
+    belowFold: {
+      heading: 'Dental Care Across South Australia',
+      paragraphs: [
+        'Adelaide is known for its accessible and well-priced dental services compared to larger capitals like Sydney and Melbourne. Many practices in South Australia offer extended hours, flexible payment plans, and accept all major health funds with on-the-spot claiming.',
+        'The South Australian government also supports dental care for eligible patients through public dental services and the Child Dental Benefits Schedule. Whether you are seeking a routine clean, cosmetic treatment, or emergency dental care, browse the SA listings above to find a practice near you.',
+      ],
+    },
+    faqs: [
+      { question: 'How much does a dental check-up cost in Adelaide?', answer: 'Dental check-up costs in Adelaide typically range from $150 to $350 depending on the practice and whether X-rays are included. Many practices offer gap-free check-ups for health fund members. Contact the practice directly for a current fee schedule.' },
+      { question: 'Are there emergency dentists in Adelaide?', answer: 'Yes — several Adelaide dental practices offer same-day emergency appointments for dental pain, trauma, and urgent issues. Look for practices listing Emergency Dentistry in their services and call ahead to check availability.' },
+      { question: 'Do SA dentists accept the Child Dental Benefits Schedule?', answer: 'Many South Australian dental practices accept the Child Dental Benefits Schedule (CDBS), which provides eligible children aged 2-17 with up to $1,095 in dental benefits over two years. Check with individual practices to confirm CDBS eligibility and coverage.' },
+      { question: 'What cosmetic dental services are popular in Adelaide?', answer: 'Popular cosmetic services in Adelaide include teeth whitening, porcelain veneers, dental bonding, and Invisalign clear aligners. Several Adelaide practices specialise in smile makeovers using the latest digital planning technology. Browse the SA listings above for practices offering cosmetic dentistry.' },
+    ],
+  },
+  wa: {
+    intro: {
+      heading: 'Your Guide to Dentists in Western Australia',
+      paragraphs: [
+        'Western Australia\'s dental practices serve communities from Perth and Fremantle to Joondalup, Bunbury, and regional centres in the Goldfields and Pilbara. Our directory helps you find trusted dental care whether you\'re in the Perth metro area or a remote WA town.',
+        'Perth is home to a competitive dental market with practices offering everything from general check-ups and emergency care to advanced cosmetic work and surgical implants. Regional WA has also seen growth in dental services, making quality care more accessible across the state.',
+      ],
+    },
+    belowFold: {
+      heading: 'Dental Care Across Western Australia',
+      paragraphs: [
+        'Perth and its northern corridor — including Joondalup, Wanneroo, and Midland — have experienced strong population growth, driving expansion in dental services. Many newer practices feature modern fit-outs, digital imaging, and extended opening hours to serve growing communities.',
+        'In regional WA, towns like Kalgoorlie, Bunbury, and Geraldton have well-established dental clinics. For residents in remote areas, some practices offer tele-dentistry consultations and referral pathways to Perth-based specialists. Browse the WA listings above to find a practice that suits your needs.',
+      ],
+    },
+    faqs: [
+      { question: 'How do I find a dentist in Perth\'s northern suburbs?', answer: 'Browse the WA listings above to find dental practices in Joondalup, Wanneroo, and surrounding northern suburbs. Each listing includes the full address and contact number so you can easily find a practice near you.' },
+      { question: 'Are there dentists in regional Western Australia?', answer: 'Yes — GoDental.au lists dental practices across regional WA including the Goldfields, South West, and other areas. Use the listings above to find practices outside the Perth metro area.' },
+      { question: 'What should I do if I have a dental emergency in Perth?', answer: 'If you have a dental emergency in Perth, contact a practice from the listings above that offers Emergency Dentistry. Many Perth dentists reserve same-day appointment slots for emergencies. For after-hours emergencies, some practices provide an emergency contact number on their website.' },
+      { question: 'Do Perth dentists offer Invisalign and clear aligners?', answer: 'Many Perth dental practices offer Invisalign and other clear aligner systems. Look for practices listing Orthodontics or Invisalign in their services. Some offer free initial consultations to assess your suitability for clear aligner treatment.' },
+    ],
+  },
+  tas: {
+    intro: {
+      heading: 'Your Guide to Dentists in Tasmania',
+      paragraphs: [
+        'Tasmania\'s dental practices are spread across Hobart, Launceston, Devonport, and smaller regional towns throughout the island state. Despite its smaller population, Tasmania offers quality dental care with practices ranging from established family clinics to modern specialist centres.',
+        'Whether you\'re looking for a general dentist for routine care, a specialist for implants or orthodontics, or an emergency appointment, our directory helps you find and compare Tasmanian dental practices quickly.',
+      ],
+    },
+    belowFold: {
+      heading: 'Dental Care Across Tasmania',
+      paragraphs: [
+        'Hobart and Launceston are the main centres for dental services in Tasmania, with both cities offering a good selection of general and specialist practices. The state\'s smaller size means most Tasmanians are within a reasonable drive of quality dental care.',
+        'Tasmania\'s dental professionals are known for their personalised, community-focused approach. Many practices have served their local communities for decades and offer the kind of continuity of care that larger mainland cities can sometimes lack. Browse the TAS listings above to find a practice near you.',
+      ],
+    },
+    faqs: [
+      { question: 'How do I find a dentist in Hobart?', answer: 'Browse the TAS listings above to find dental practices in Hobart and surrounding suburbs. Each listing includes the practice address, phone number, and services offered so you can choose the right fit.' },
+      { question: 'Are there specialist dentists in Tasmania?', answer: 'Yes — Tasmania has specialist dental practitioners including orthodontists, oral surgeons, and prosthodontists, primarily based in Hobart and Launceston. Some general practices also offer specialist services like dental implants and Invisalign in-house.' },
+      { question: 'What dental services are available in Launceston?', answer: 'Launceston has several well-established dental practices offering general dentistry, cosmetic treatments, emergency care, and children\'s dentistry. Browse the TAS listings above to find practices in the Launceston area.' },
+      { question: 'Do Tasmanian dentists offer payment plans?', answer: 'Many Tasmanian dental practices offer flexible payment options including payment plans, health fund claiming with HICAPS, and some accept government dental vouchers. Contact individual practices for details on their payment options.' },
+    ],
+  },
+  nt: {
+    intro: {
+      heading: 'Your Guide to Dentists in the Northern Territory',
+      paragraphs: [
+        'The Northern Territory\'s dental practices serve communities across Darwin, Alice Springs, Palmerston, and surrounding areas. While the NT has a smaller population than other states, its dental clinics offer comprehensive services ranging from general check-ups to specialist treatments.',
+        'Finding a dentist in the Top End or Central Australia is straightforward with our directory. Browse the NT listings below to compare practices by location, services, and contact details.',
+      ],
+    },
+    belowFold: {
+      heading: 'Dental Care Across the Northern Territory',
+      paragraphs: [
+        'Darwin and Palmerston are the main centres for dental services in the NT, with most practices offering general, cosmetic, and emergency dentistry. Alice Springs also has established dental clinics serving Central Australia and surrounding communities.',
+        'The NT\'s unique geography means some residents travel significant distances for dental care. Several NT practices offer extended appointment times and comprehensive treatment planning to minimise the number of visits required. Browse the listings above to find a practice that works for your situation.',
+      ],
+    },
+    faqs: [
+      { question: 'How do I find a dentist in Darwin?', answer: 'Browse the NT listings above to find dental practices in Darwin, Palmerston, and surrounding suburbs. Each listing includes the practice address and phone number for easy contact and appointment booking.' },
+      { question: 'Are there dental services in Alice Springs?', answer: 'Yes — Alice Springs has several dental practices offering general and specialist services. The NT listings above include Alice Springs-based practices. Some also provide services to patients travelling from remote communities.' },
+      { question: 'What emergency dental options are available in the NT?', answer: 'Several Darwin dental practices offer emergency appointments for dental pain and trauma. If you need urgent after-hours care, the Royal Darwin Hospital emergency department can assist with serious dental emergencies. For routine emergencies, call a listed practice to check same-day availability.' },
+      { question: 'Do NT dentists accept health fund cards?', answer: 'Most Northern Territory dental practices accept all major health funds and offer on-the-spot HICAPS claiming. Some also accept government dental vouchers and the Child Dental Benefits Schedule. Contact the practice directly to confirm your fund is accepted.' },
+    ],
+  },
+  act: {
+    intro: {
+      heading: 'Your Guide to Dentists in the ACT',
+      paragraphs: [
+        'The Australian Capital Territory has a well-developed network of dental practices serving Canberra\'s growing population of over 450,000 residents. From the city centre and Woden to Belconnen, Tuggeranong, and Gungahlin, you\'ll find quality dental care across all major town centres.',
+        'Canberra\'s dental practices offer a full range of services including general and preventive dentistry, cosmetic treatments, orthodontics, and emergency care. Many practices cater to public servants and their families with flexible scheduling and health fund acceptance.',
+      ],
+    },
+    belowFold: {
+      heading: 'Dental Care Across the ACT',
+      paragraphs: [
+        'Canberra consistently ranks as one of Australia\'s most liveable cities, and its dental services reflect that standard. Practices across the ACT feature modern equipment, digital imaging, and patient-focused care. The territory\'s compact geography means most residents are within 15 minutes of a quality dental clinic.',
+        'The ACT government also supports dental care for eligible concession card holders through public dental services. For private patients, most Canberra practices accept all major health funds with convenient HICAPS claiming. Browse the ACT listings above to find a practice in your town centre.',
+      ],
+    },
+    faqs: [
+      { question: 'How do I find a dentist in Canberra?', answer: 'Browse the ACT listings above to find dental practices across Canberra\'s town centres including Civic, Woden, Belconnen, Tuggeranong, and Gungahlin. Each listing includes the full address, phone number, and services offered.' },
+      { question: 'Are there weekend dentists in the ACT?', answer: 'Several Canberra dental practices offer Saturday appointments, and some provide limited Sunday or after-hours services for emergencies. Check individual listings or call the practice to confirm weekend availability.' },
+      { question: 'What is the average cost of dental treatment in Canberra?', answer: 'Dental costs in Canberra are generally in line with other Australian capital cities. A standard check-up and clean typically ranges from $150 to $350. Many practices offer gap-free preventive treatments for health fund members. Contact practices directly for current fee schedules.' },
+      { question: 'Do ACT dentists offer cosmetic dentistry?', answer: 'Yes — many Canberra dental practices offer cosmetic services including teeth whitening, porcelain veneers, dental bonding, and Invisalign clear aligners. Browse the ACT listings above and look for practices that list Cosmetic Dentistry in their services.' },
+    ],
+  },
+};
+
+// ============================================================
 // HELPERS
 // ============================================================
 const outDir = __dirname;
@@ -3411,15 +3593,19 @@ function buildHomepage() {
 // --- State index ---
 function buildStateIndex(state) {
   const statePractices = [...practices[state.slug]].sort((a, b) => (b.featured ? 1 : 0) - (a.featured ? 1 : 0));
+  const sc = stateContent[state.slug];
+  const BATCH = 10;
+
   const practiceCards = statePractices
-    .map((p) => {
+    .map((p, idx) => {
       const tags = topServices(p.services)
         .map((s) => `<span class="tag">${escapeHtml(s)}</span>`)
         .join(' ');
       const featuredClass = p.featured ? ' featured' : '';
+      const hiddenClass = idx >= BATCH ? ' practice-hidden' : '';
       const featuredBadge = p.featured ? '<span class="featured-badge"><i class="fa-solid fa-star"></i> Featured</span>' : '';
       return `
-        <div class="practice-card${featuredClass}">
+        <div class="practice-card${featuredClass}${hiddenClass}" data-index="${idx}">
           <a href="/${state.slug}/${p.slug}/" class="practice-card-thumb">
             ${practicePlaceholder(p, state.slug, 'sm')}
           </a>
@@ -3435,17 +3621,107 @@ function buildStateIndex(state) {
     })
     .join('\n');
 
+  // Above-the-fold content
+  const aboveContent = sc ? `
+    <section class="state-content-above">
+      <h2>${escapeHtml(sc.intro.heading)}</h2>
+      ${sc.intro.paragraphs.map((p) => `<p>${p}</p>`).join('\n      ')}
+    </section>` : '';
+
+  // See More button (only if more than BATCH practices)
+  const seeMoreBtn = statePractices.length > BATCH ? `
+    <div class="see-more-wrap">
+      <button class="btn btn-see-more" id="see-more-btn">See More Practices <i class="fa-solid fa-chevron-down"></i></button>
+      <p class="see-more-count" id="see-more-count">Showing ${BATCH} of ${statePractices.length} practices</p>
+    </div>` : '';
+
+  const noScript = statePractices.length > BATCH ? '<noscript><style>.practice-hidden{display:flex!important;}</style></noscript>' : '';
+
+  // Below-the-fold content
+  const belowContent = sc ? `
+    <section class="state-content-below">
+      <h2>${escapeHtml(sc.belowFold.heading)}</h2>
+      ${sc.belowFold.paragraphs.map((p) => `<p>${p}</p>`).join('\n      ')}
+    </section>` : '';
+
+  // FAQ section
+  const faqSection = sc && sc.faqs.length > 0 ? `
+    <section class="faq-section">
+      <h2>Frequently Asked Questions About Dentists in ${escapeHtml(state.name)}</h2>
+      <div class="faq-list">
+        ${sc.faqs.map((faq, i) => `
+        <div class="faq-item">
+          <button class="faq-question" aria-expanded="false" aria-controls="faq-${i}">
+            <span>${escapeHtml(faq.question)}</span>
+            <i class="fa-solid fa-plus faq-icon"></i>
+          </button>
+          <div class="faq-answer" id="faq-${i}" role="region">
+            <p>${faq.answer}</p>
+          </div>
+        </div>`).join('\n        ')}
+      </div>
+    </section>` : '';
+
+  // FAQ structured data
+  const faqSchema = sc && sc.faqs.length > 0 ? `
+    <script type="application/ld+json">${JSON.stringify({
+      '@context': 'https://schema.org',
+      '@type': 'FAQPage',
+      mainEntity: sc.faqs.map((faq) => ({
+        '@type': 'Question',
+        name: faq.question,
+        acceptedAnswer: { '@type': 'Answer', text: faq.answer },
+      })),
+    })}</script>` : '';
+
   const content = `
+  ${faqSchema}
   <main class="container">
     <nav class="breadcrumbs" aria-label="Breadcrumb">
       <a href="/">Home</a> &rsaquo; <span>${escapeHtml(state.name)}</span>
     </nav>
     <h1>Dentists in ${escapeHtml(state.name)}</h1>
     <p class="state-intro">Browse ${statePractices.length} dental practices in ${escapeHtml(state.name)}.</p>
+    ${aboveContent}
     <div class="practice-list">
       ${practiceCards}
     </div>
-  </main>`;
+    ${noScript}
+    ${seeMoreBtn}
+    ${belowContent}
+    ${faqSection}
+    <div class="state-cta">
+      <h2>Are you a dental practice in ${escapeHtml(state.name)}?</h2>
+      <p>Get your practice listed on GoDental.au and reach patients searching for dentists in ${escapeHtml(state.abbr)}.</p>
+      <a href="/submit-listing/" class="btn">Submit Your Practice</a>
+    </div>
+  </main>
+  <script>
+  (function(){
+    var btn=document.getElementById('see-more-btn');
+    if(btn){
+      var cards=document.querySelectorAll('.practice-card');
+      var countEl=document.getElementById('see-more-count');
+      var shown=${Math.min(BATCH, statePractices.length)};
+      var total=cards.length;
+      btn.addEventListener('click',function(){
+        var next=Math.min(shown+${BATCH},total);
+        for(var i=shown;i<next;i++){cards[i].classList.remove('practice-hidden');}
+        shown=next;
+        countEl.textContent='Showing '+shown+' of '+total+' practices';
+        if(shown>=total){btn.parentElement.style.display='none';}
+      });
+    }
+    var qs=document.querySelectorAll('.faq-question');
+    qs.forEach(function(q){
+      q.addEventListener('click',function(){
+        var ex=q.getAttribute('aria-expanded')==='true';
+        q.setAttribute('aria-expanded',String(!ex));
+        q.parentElement.classList.toggle('faq-open');
+      });
+    });
+  })();
+  </script>`;
 
   return htmlShell({
     title: `Dentists in ${state.name} — GoDental.au`,
