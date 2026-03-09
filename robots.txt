@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /search/
+Disallow: /search-data.json
+Disallow: /suburbs.json
+
+Sitemap: https://godental.au/sitemap.xml

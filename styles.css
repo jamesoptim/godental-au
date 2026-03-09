@@ -213,13 +213,14 @@ ul {
   font-size: 1.15rem;
   opacity: 0.92;
   max-width: 520px;
-  margin-bottom: 2rem;
+  margin-bottom: 0.75rem;
   line-height: 1.7;
 }
 
 .hero-stats {
   display: flex;
   gap: 0;
+  margin-top: 1.2rem;
 }
 
 .hero-stat {
@@ -1326,7 +1327,7 @@ ul {
 
 .search-wrap {
   max-width: 540px;
-  margin: 1.5rem auto 0;
+  margin: 1.2rem auto 0;
   position: relative;
 }
 

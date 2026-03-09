@@ -3606,6 +3606,10 @@ function generateSearchData(postcodeMap) {
       const geo = postcode ? postcodeMap[postcode] : null;
 
       if (geo) {
+        // Check if a screenshot exists for this practice
+        const screenshotPath = path.join(__dirname, 'images', 'screenshots', state.slug, `${p.slug}.jpg`);
+        const hasScreenshot = fs.existsSync(screenshotPath);
+
         searchData.push({
           name: p.name,
           slug: p.slug,
@@ -3618,6 +3622,7 @@ function generateSearchData(postcodeMap) {
           lng: Math.round(geo.lng * 10000) / 10000,
           featured: p.featured || false,
           services: p.services ? p.services.slice(0, 5) : [],
+          img: hasScreenshot ? 1 : 0,
         });
         matched++;
       } else {
@@ -4506,25 +4511,44 @@ function buildSearchPage() {
       return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     }
 
+    var stateColors = {
+      vic: ['#134e4a', '#0d9488'], nsw: ['#0e7490', '#06b6d4'], qld: ['#991b1b', '#dc2626'],
+      sa: ['#9a3412', '#ea580c'], wa: ['#854d0e', '#ca8a04'], tas: ['#166534', '#16a34a'],
+      nt: ['#92400e', '#d97706'], act: ['#115e59', '#14b8a6']
+    };
+
+    function renderThumb(p) {
+      if (p.img) {
+        return '<img src="/images/screenshots/' + esc(p.state) + '/' + esc(p.slug) + '.jpg" alt="' + esc(p.name) + ' website" class="practice-img-sm" loading="lazy">';
+      }
+      var colors = stateColors[p.state] || stateColors.vic;
+      var initial = p.name.charAt(0).toUpperCase();
+      return '<div class="practice-placeholder placeholder-sm" style="background: linear-gradient(135deg, ' + colors[0] + ', ' + colors[1] + ');">'
+        + '<span class="placeholder-initial">' + initial + '</span>'
+        + '<i class="fa-solid fa-tooth placeholder-icon"></i>'
+        + '</div>';
+    }
+
     function renderCard(p) {
       var distStr = p.distance < 1 ? '< 1 km' : p.distance.toFixed(1) + ' km';
       var tags = (p.services || []).map(function(s){ return '<span class="tag">' + esc(s) + '</span>'; }).join(' ');
       var featuredBadge = p.featured ? '<span class="featured-badge"><i class="fa-solid fa-star"></i> Featured</span>' : '';
       var featuredClass = p.featured ? ' featured' : '';
 
-      return '<a href="/' + esc(p.state) + '/' + esc(p.slug) + '/" class="practice-card' + featuredClass + '">'
+      return '<div class="practice-card' + featuredClass + '">'
+        + '<a href="/' + esc(p.state) + '/' + esc(p.slug) + '/" class="practice-card-thumb">'
+        + renderThumb(p)
+        + '</a>'
         + '<div class="practice-card-body">'
-        + '<div class="practice-card-header">'
-        + '<h3>' + esc(p.name) + '</h3>'
-        + featuredBadge
+        + '<h2><a href="/' + esc(p.state) + '/' + esc(p.slug) + '/">' + esc(p.name) + '</a>' + featuredBadge + '</h2>'
+        + '<p class="practice-address"><i class="fa-solid fa-location-dot"></i> ' + esc(p.address) + '</p>'
+        + '<div class="tags">' + tags + '</div>'
         + '<span class="distance-badge"><i class="fa-solid fa-location-dot"></i> ' + distStr + '</span>'
         + '</div>'
-        + '<p class="practice-card-suburb"><i class="fa-solid fa-map-marker-alt"></i> ' + esc(p.suburb) + ', ' + esc(p.stateAbbr) + '</p>'
-        + '<p class="practice-card-address">' + esc(p.address) + '</p>'
-        + (tags ? '<div class="practice-card-tags">' + tags + '</div>' : '')
+        + '<div class="practice-card-action">'
+        + '<a href="tel:' + p.phone.replace(/[^+\d]/g, '') + '" class="btn btn-call"><i class="fa-solid fa-phone"></i>' + esc(p.phone) + '</a>'
         + '</div>'
-        + '<div class="practice-card-action"><span class="btn btn-outline">View Details</span></div>'
-        + '</a>';
+        + '</div>';
     }
 
     var params = new URLSearchParams(window.location.search);
@@ -4730,6 +4754,18 @@ function build() {
     console.log('  search/index.html');
     searchPageCount = 1;
   }
+
+  // 6. Generate robots.txt
+  const robotsTxt = `User-agent: *
+Allow: /
+Disallow: /search/
+Disallow: /search-data.json
+Disallow: /suburbs.json
+
+Sitemap: https://godental.au/sitemap.xml
+`;
+  fs.writeFileSync(path.join(outDir, 'robots.txt'), robotsTxt);
+  console.log('  robots.txt');
 
   const total = 1 + states.length + practiceCount + 2 + searchPageCount;
   console.log(`\nDone! Built 1 homepage + ${states.length} state pages + ${practiceCount} practice pages + 2 extra pages + ${searchPageCount} search page = ${total} pages total.`);
