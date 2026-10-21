@@ -4913,7 +4913,6 @@ function buildSearchPage() {
             ${concerns.map((c) => `<option value="${c.id}">${escapeHtml(c.name)}</option>`).join('')}
           </select>
         </div>
-        <button type="submit" class="btn btn--primary search-filters__go">Find a dentist</button>
       </form>
     </div>
     <p id="search-status" class="search-status"></p>
@@ -5097,9 +5096,15 @@ function buildSearchPage() {
       if (pc) filterForm.elements.q.value = pc[1];
       ['q', 'state', 'concern'].forEach(function(n){ if (!filterForm.elements[n].value.trim()) filterForm.elements[n].disabled = true; });
     });
-    // Changing state or treatment re-runs the search straight away
+    // A filter, not a form: changing state or treatment applies at once, and so
+    // does a complete postcode (or Enter, or picking a suggestion)
     ['filter-state', 'filter-concern'].forEach(function(id){
       document.getElementById(id).addEventListener('change', function(){ filterForm.requestSubmit(); });
+    });
+    var pcTimer;
+    input.addEventListener('input', function(){
+      clearTimeout(pcTimer);
+      if (/^\\d{4}$/.test(input.value.trim())) pcTimer = setTimeout(function(){ filterForm.requestSubmit(); }, 500);
     });
 
     if (!q && !concern && !stateName) {

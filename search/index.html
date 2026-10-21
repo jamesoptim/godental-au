@@ -105,7 +105,6 @@
             <option value="checkups">Check-ups and fillings</option><option value="cosmetic">Whitening and veneers</option><option value="straighten">Straightening</option><option value="rootcanal">Root canal</option><option value="wisdom">Wisdom teeth and oral surgery</option><option value="missing">Missing or broken teeth</option><option value="emergency">Emergency care</option><option value="kids">Children&#039;s dentistry</option>
           </select>
         </div>
-        <button type="submit" class="btn btn--primary search-filters__go">Find a dentist</button>
       </form>
     </div>
     <p id="search-status" class="search-status"></p>
@@ -289,9 +288,15 @@
       if (pc) filterForm.elements.q.value = pc[1];
       ['q', 'state', 'concern'].forEach(function(n){ if (!filterForm.elements[n].value.trim()) filterForm.elements[n].disabled = true; });
     });
-    // Changing state or treatment re-runs the search straight away
+    // A filter, not a form: changing state or treatment applies at once, and so
+    // does a complete postcode (or Enter, or picking a suggestion)
     ['filter-state', 'filter-concern'].forEach(function(id){
       document.getElementById(id).addEventListener('change', function(){ filterForm.requestSubmit(); });
+    });
+    var pcTimer;
+    input.addEventListener('input', function(){
+      clearTimeout(pcTimer);
+      if (/^\d{4}$/.test(input.value.trim())) pcTimer = setTimeout(function(){ filterForm.requestSubmit(); }, 500);
     });
 
     if (!q && !concern && !stateName) {
