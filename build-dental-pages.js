@@ -4889,15 +4889,32 @@ function buildSearchPage() {
   <main class="container search-page">
     <div class="search-header">
       <h1 id="search-title">Search Results</h1>
-      <div class="search-wrap">
-        <div class="search-bar">
-          <i class="fa-solid fa-magnifying-glass search-icon"></i>
-          <input type="text" id="search-input" class="search-input"
-                 placeholder="Search by suburb or postcode..."
-                 autocomplete="off" aria-label="Search by suburb or postcode">
-          <ul id="search-autocomplete" class="search-autocomplete" role="listbox"></ul>
+      <form class="search-filters" id="search-filters" action="/search/" method="get" role="search">
+        <div class="search-filters__field search-filters__field--place">
+          <label for="search-input">Suburb or postcode</label>
+          <div class="search-bar">
+            <i class="fa-solid fa-location-dot search-icon" aria-hidden="true"></i>
+            <input type="text" id="search-input" name="q" class="search-input"
+                   placeholder="e.g. Richmond or 3121" autocomplete="off">
+            <ul id="search-autocomplete" class="search-autocomplete" role="listbox"></ul>
+          </div>
         </div>
-      </div>
+        <div class="search-filters__field">
+          <label for="filter-state">State</label>
+          <select id="filter-state" name="state">
+            <option value="">Anywhere</option>
+            ${states.map((st) => `<option value="${st.abbr}">${st.name}</option>`).join('')}
+          </select>
+        </div>
+        <div class="search-filters__field">
+          <label for="filter-concern">Treatment</label>
+          <select id="filter-concern" name="concern">
+            <option value="">Anything</option>
+            ${concerns.map((c) => `<option value="${c.id}">${escapeHtml(c.name)}</option>`).join('')}
+          </select>
+        </div>
+        <button type="submit" class="btn btn--primary search-filters__go">Find a dentist</button>
+      </form>
     </div>
     <p id="search-status" class="search-status"></p>
     <div id="search-results">
@@ -4937,9 +4954,11 @@ function buildSearchPage() {
     function esc(s) { var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
 
     function goSearch(m) {
+      var c = document.getElementById('filter-concern').value;
       window.location.href = '/search/?q=' + encodeURIComponent(m.postcode)
         + '&suburb=' + encodeURIComponent(m.suburb)
-        + '&state=' + encodeURIComponent(m.state);
+        + '&state=' + encodeURIComponent(m.state)
+        + (c ? '&concern=' + encodeURIComponent(c) : '');
     }
 
     function setActive(idx) {
@@ -5067,6 +5086,22 @@ function buildSearchPage() {
     }
     if (window.GoDentalSearch && (concern || stateName)) GoDentalSearch.set({ concern: concern, state: stateName });
 
+    // Filter bar: reflect the current search, and send only the fields in use
+    var filterForm = document.getElementById('search-filters');
+    document.getElementById('filter-concern').value = concern;
+    document.getElementById('filter-state').value = stateName;
+    if (q && !suburbName) input.value = q;
+    filterForm.addEventListener('submit', function(){
+      // "Brisbane 4000" (how a found location is shown) searches as its postcode
+      var pc = filterForm.elements.q.value.match(/\\b(\\d{4})\\s*$/);
+      if (pc) filterForm.elements.q.value = pc[1];
+      ['q', 'state', 'concern'].forEach(function(n){ if (!filterForm.elements[n].value.trim()) filterForm.elements[n].disabled = true; });
+    });
+    // Changing state or treatment re-runs the search straight away
+    ['filter-state', 'filter-concern'].forEach(function(id){
+      document.getElementById(id).addEventListener('change', function(){ filterForm.requestSubmit(); });
+    });
+
     if (!q && !concern && !stateName) {
       container.innerHTML =
         '<div class="no-results-msg"><i class="fa-solid fa-magnifying-glass"></i>'
@@ -5082,7 +5117,7 @@ function buildSearchPage() {
         var list = practices.filter(function(p){ return byConcern(p) && (!stateName || p.stateAbbr === stateName); })
           .sort(function(a, b){ return (b.featured ? 1 : 0) - (a.featured ? 1 : 0) || a.name.localeCompare(b.name); });
         setTitle((concernName ? concernName + ' dentists' : 'Dentists') + (stateName ? ' in ' + stateName : ' in Australia'));
-        status.textContent = list.length + ' practice' + (list.length !== 1 ? 's' : '') + '. Add a suburb or postcode above to sort by distance.';
+        status.textContent = list.length + ' practice' + (list.length !== 1 ? 's' : '') + (stateName ? '' : ' across Australia') + '. Pick a state or add a suburb or postcode to narrow it down.';
         container.innerHTML = list.length
           ? '<div class="practice-list">' + list.map(renderCard).join('') + '</div>'
           : '<div class="no-results-msg"><i class="fa-solid fa-tooth"></i><h2>No matches yet</h2><p>No listed practice in ' + esc(stateName) + ' offers that treatment yet. Try another state.</p></div>';
