@@ -5,41 +5,101 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dentists in Queensland — GoDental.au</title>
   <meta name="description" content="Find trusted dental practices in Queensland. Browse 14 dentists with addresses, phone numbers, and services across QLD.">
+  <meta name="theme-color" content="#F5F8F8">
   <link rel="icon" href="/favicon.ico" sizes="32x32">
   <link rel="icon" href="/images/favicon-192.png" type="image/png" sizes="192x192">
   <link rel="apple-touch-icon" href="/images/apple-touch-icon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700&family=Geist:wght@400;500;600&display=swap">
   <link rel="stylesheet" href="/styles.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <script>
+  (function(){
+    // "Your search" pill: the visitor's chosen treatment and state, carried across pages.
+    var names = {"checkups":"Check-ups","cosmetic":"Whitening","straighten":"Straightening","rootcanal":"Root canal","wisdom":"Wisdom teeth","missing":"Implants","emergency":"Emergency","kids":"Kids"};
+    function paint(sel){
+      var pill = document.querySelector('[data-your-search]');
+      if (!pill) return;
+      sel = sel || window.GoDentalSearch.get();
+      var parts = [];
+      if (sel.concern && names[sel.concern]) parts.push(names[sel.concern]);
+      if (sel.state) parts.push(sel.state);
+      if (!parts.length) { pill.hidden = true; return; }
+      var qs = new URLSearchParams();
+      if (sel.concern) qs.set('concern', sel.concern);
+      if (sel.state) qs.set('state', sel.state);
+      pill.href = '/search/?' + qs.toString();
+      pill.querySelector('[data-your-search-value]').textContent = parts.join(' \u00b7 ');
+      pill.hidden = false;
+    }
+    window.GoDentalSearch = {
+      paint: function(){ paint(); },
+      get: function(){ try { return JSON.parse(localStorage.getItem('gd-search') || '{}'); } catch (e) { return {}; } },
+      set: function(patch){
+        var sel = this.get();
+        for (var k in patch) { if (patch[k]) sel[k] = patch[k]; else delete sel[k]; }
+        try { localStorage.setItem('gd-search', JSON.stringify(sel)); } catch (e) {}
+        paint(sel);
+        document.dispatchEvent(new CustomEvent('gd:search', { detail: sel }));
+        return sel;
+      }
+    };
+  })();
+  </script>
 </head>
 <body class="page-state">
+  <a class="skip-link" href="#main">Skip to content</a>
   <header class="site-header">
-    <div class="container header-inner">
-      <a href="/" class="site-logo"><img src="/images/logo.png" alt="GoDental.au" height="36"></a>
-      <nav class="site-nav">
-        <a href="/vic/">VIC</a>
-              <a href="/nsw/">NSW</a>
-              <a href="/qld/">QLD</a>
-              <a href="/sa/">SA</a>
-              <a href="/wa/">WA</a>
-              <a href="/tas/">TAS</a>
-              <a href="/nt/">NT</a>
-              <a href="/act/">ACT</a>
-              <span class="nav-divider"></span>
-              <a href="/about/">About</a>
-              <a href="/submit-listing/" class="nav-cta"><i class="fa-solid fa-tooth"></i> List Your Practice</a>
+    <div class="wrap header-inner">
+      <a href="/" class="site-logo"><img src="/images/logo.png" alt="GoDental.au" width="979" height="233"></a>
+      <nav class="site-nav" id="site-nav" aria-label="Main">
+        <div class="site-nav__states">
+          <a href="/vic/">VIC</a>
+          <a href="/nsw/">NSW</a>
+          <a href="/qld/" aria-current="page">QLD</a>
+          <a href="/sa/">SA</a>
+          <a href="/wa/">WA</a>
+          <a href="/tas/">TAS</a>
+          <a href="/nt/">NT</a>
+          <a href="/act/">ACT</a>
+        </div>
+        <a href="/about/" class="site-nav__link">About</a>
+        <a href="/submit-listing/" class="btn btn--quiet site-nav__cta">List your practice</a>
       </nav>
-      <button class="nav-toggle" aria-label="Toggle navigation">&#9776;</button>
+      <a class="your-search" href="/search/" data-your-search hidden>
+        <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+        <span class="your-search__label">Your search</span>
+        <span class="your-search__value" data-your-search-value></span>
+      </a>
+      <button class="nav-toggle" aria-label="Menu" aria-expanded="false" aria-controls="site-nav"><i class="fa-solid fa-bars" aria-hidden="true"></i></button>
     </div>
   </header>
+  <div id="main">
   
   
     <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do I find a dentist on the Gold Coast or Sunshine Coast?","acceptedAnswer":{"@type":"Answer","text":"Browse the QLD listings above to find dental practices on the Gold Coast, Sunshine Coast, and throughout South-East Queensland. Each listing includes a full address and phone number for easy contact."}},{"@type":"Question","name":"Are Queensland dentists open on weekends?","acceptedAnswer":{"@type":"Answer","text":"Many Queensland dental practices offer Saturday morning appointments, and some larger practices in Brisbane and the Gold Coast are open on Sundays for emergencies. Check individual listings or call the practice to confirm weekend availability."}},{"@type":"Question","name":"What specialist dental services are available in QLD?","acceptedAnswer":{"@type":"Answer","text":"Queensland has a wide range of dental specialists including orthodontists, periodontists, oral surgeons, and prosthodontists. Many general practices also offer specialist services in-house, such as dental implants and Invisalign. Browse the services listed on each practice page for details."}},{"@type":"Question","name":"Can I use my health fund at Queensland dentists?","acceptedAnswer":{"@type":"Answer","text":"Most Queensland dental practices accept all major health funds and offer on-the-spot HICAPS claiming. Some also offer gap-free preventive treatments for eligible fund members. Contact the practice directly for details about your specific fund."}}]}</script>
-  <main class="container">
-    <nav class="breadcrumbs" aria-label="Breadcrumb">
-      <a href="/">Home</a> &rsaquo; <span>Queensland</span>
-    </nav>
-    <h1>Dentists in Queensland</h1>
-    <p class="state-intro">Browse 14 dental practices in Queensland.</p>
+  <section class="page-band">
+    <div class="wrap">
+      <nav class="breadcrumbs" aria-label="Breadcrumb">
+        <a href="/">Home</a> <span aria-hidden="true">/</span> <span>Queensland</span>
+      </nav>
+      <h1 class="display page-band__title">Dentists in Queensland</h1>
+      <p class="page-band__sub"><span class="sc-nums">14</span> listed practices. Tap a number to call.</p>
+      <div class="concern-filter" role="group" aria-label="Filter by treatment">
+        <button type="button" class="chip-btn" data-filter="" aria-pressed="true">All</button>
+        <button type="button" class="chip-btn" data-filter="checkups" aria-pressed="false">Check-ups</button>
+        <button type="button" class="chip-btn" data-filter="cosmetic" aria-pressed="false">Whitening</button>
+        <button type="button" class="chip-btn" data-filter="straighten" aria-pressed="false">Straightening</button>
+        <button type="button" class="chip-btn" data-filter="rootcanal" aria-pressed="false">Root canal</button>
+        <button type="button" class="chip-btn" data-filter="wisdom" aria-pressed="false">Wisdom teeth</button>
+        <button type="button" class="chip-btn" data-filter="missing" aria-pressed="false">Implants</button>
+        <button type="button" class="chip-btn" data-filter="emergency" aria-pressed="false">Emergency</button>
+        <button type="button" class="chip-btn" data-filter="kids" aria-pressed="false">Kids</button>
+      </div>
+    </div>
+  </section>
+  <main class="wrap state-main">
     
     <section class="state-content-above">
       <h2>Your Guide to Dentists in Queensland</h2>
@@ -48,7 +108,7 @@
     </section>
     <div class="practice-list">
       
-        <div class="practice-card featured" data-index="0">
+        <div class="practice-card featured" data-index="0" data-concerns="checkups cosmetic rootcanal missing emergency kids">
           <a href="/qld/smile-on-camp-hill/" class="practice-card-thumb">
             <img src="/images/screenshots/qld/smile-on-camp-hill.jpg" alt="Smile On Camp Hill website" class="practice-img-sm" loading="lazy">
           </a>
@@ -62,7 +122,7 @@
           </div>
         </div>
 
-        <div class="practice-card featured" data-index="1">
+        <div class="practice-card featured" data-index="1" data-concerns="checkups cosmetic straighten wisdom missing emergency kids">
           <a href="/qld/sunshine-coast-smile-centre/" class="practice-card-thumb">
             <img src="/images/screenshots/qld/sunshine-coast-smile-centre.jpg" alt="Sunshine Coast Smile Centre website" class="practice-img-sm" loading="lazy">
           </a>
@@ -76,7 +136,7 @@
           </div>
         </div>
 
-        <div class="practice-card" data-index="2">
+        <div class="practice-card" data-index="2" data-concerns="checkups cosmetic straighten missing emergency">
           <a href="/qld/brisbane-cbd-dental-clinic/" class="practice-card-thumb">
             <img src="/images/screenshots/qld/brisbane-cbd-dental-clinic.jpg" alt="Brisbane CBD Dental Clinic website" class="practice-img-sm" loading="lazy">
           </a>
@@ -90,7 +150,7 @@
           </div>
         </div>
 
-        <div class="practice-card" data-index="3">
+        <div class="practice-card" data-index="3" data-concerns="checkups cosmetic wisdom missing emergency kids">
           <a href="/qld/fnq-dental-day-surgery/" class="practice-card-thumb">
             <img src="/images/screenshots/qld/fnq-dental-day-surgery.jpg" alt="FNQ Dental &amp; Day Surgery website" class="practice-img-sm" loading="lazy">
           </a>
@@ -104,7 +164,7 @@
           </div>
         </div>
 
-        <div class="practice-card" data-index="4">
+        <div class="practice-card" data-index="4" data-concerns="checkups cosmetic rootcanal missing emergency kids">
           <a href="/qld/toowoomba-dental/" class="practice-card-thumb">
             <img src="/images/screenshots/qld/toowoomba-dental.jpg" alt="Toowoomba Dental website" class="practice-img-sm" loading="lazy">
           </a>
@@ -118,7 +178,7 @@
           </div>
         </div>
 
-        <div class="practice-card" data-index="5">
+        <div class="practice-card" data-index="5" data-concerns="checkups cosmetic straighten rootcanal missing">
           <a href="/qld/lr-dental/" class="practice-card-thumb">
             <img src="/images/screenshots/qld/lr-dental.jpg" alt="L&amp;R Dental website" class="practice-img-sm" loading="lazy">
           </a>
@@ -132,7 +192,7 @@
           </div>
         </div>
 
-        <div class="practice-card" data-index="6">
+        <div class="practice-card" data-index="6" data-concerns="checkups cosmetic straighten missing emergency kids">
           <a href="/qld/sunshine-boulevard-dental/" class="practice-card-thumb">
             <img src="/images/screenshots/qld/sunshine-boulevard-dental.jpg" alt="Sunshine Boulevard Dental website" class="practice-img-sm" loading="lazy">
           </a>
@@ -146,7 +206,7 @@
           </div>
         </div>
 
-        <div class="practice-card" data-index="7">
+        <div class="practice-card" data-index="7" data-concerns="checkups cosmetic straighten rootcanal missing kids">
           <a href="/qld/mga-dental/" class="practice-card-thumb">
             <img src="/images/screenshots/qld/mga-dental.jpg" alt="MGA Dental website" class="practice-img-sm" loading="lazy">
           </a>
@@ -160,7 +220,7 @@
           </div>
         </div>
 
-        <div class="practice-card" data-index="8">
+        <div class="practice-card" data-index="8" data-concerns="checkups cosmetic straighten missing emergency">
           <a href="/qld/enhanced-dental-studios/" class="practice-card-thumb">
             <img src="/images/screenshots/qld/enhanced-dental-studios.jpg" alt="Enhanced Dental Studios website" class="practice-img-sm" loading="lazy">
           </a>
@@ -174,7 +234,7 @@
           </div>
         </div>
 
-        <div class="practice-card" data-index="9">
+        <div class="practice-card" data-index="9" data-concerns="checkups cosmetic straighten rootcanal missing emergency kids">
           <a href="/qld/coastal-dental-care-robina/" class="practice-card-thumb">
             <img src="/images/screenshots/qld/coastal-dental-care-robina.jpg" alt="Coastal Dental Care Robina website" class="practice-img-sm" loading="lazy">
           </a>
@@ -188,7 +248,7 @@
           </div>
         </div>
 
-        <div class="practice-card practice-hidden" data-index="10">
+        <div class="practice-card practice-hidden" data-index="10" data-concerns="checkups cosmetic rootcanal missing kids">
           <a href="/qld/noosa-family-dental/" class="practice-card-thumb">
             <img src="/images/screenshots/qld/noosa-family-dental.jpg" alt="Noosa Family Dental website" class="practice-img-sm" loading="lazy">
           </a>
@@ -202,7 +262,7 @@
           </div>
         </div>
 
-        <div class="practice-card practice-hidden" data-index="11">
+        <div class="practice-card practice-hidden" data-index="11" data-concerns="checkups cosmetic missing emergency">
           <a href="/qld/bundall-dental-and-implants/" class="practice-card-thumb">
             <div class="practice-placeholder placeholder-sm" style="background: linear-gradient(135deg, #991b1b, #dc2626);">
     <span class="placeholder-initial">B</span>
@@ -219,7 +279,7 @@
           </div>
         </div>
 
-        <div class="practice-card practice-hidden" data-index="12">
+        <div class="practice-card practice-hidden" data-index="12" data-concerns="missing">
           <a href="/qld/next-smile-brisbane/" class="practice-card-thumb">
             <div class="practice-placeholder placeholder-sm" style="background: linear-gradient(135deg, #991b1b, #dc2626);">
     <span class="placeholder-initial">N</span>
@@ -236,7 +296,7 @@
           </div>
         </div>
 
-        <div class="practice-card practice-hidden" data-index="13">
+        <div class="practice-card practice-hidden" data-index="13" data-concerns="missing">
           <a href="/qld/next-smile-gold-coast/" class="practice-card-thumb">
             <div class="practice-placeholder placeholder-sm" style="background: linear-gradient(135deg, #991b1b, #dc2626);">
     <span class="placeholder-initial">N</span>
@@ -314,11 +374,38 @@
     <div class="state-cta">
       <h2>Are you a dental practice in Queensland?</h2>
       <p>Get your practice listed on GoDental.au and reach patients searching for dentists in QLD.</p>
-      <a href="/submit-listing/" class="btn">Submit Your Practice</a>
+      <a href="/submit-listing/" class="btn btn--primary">List your practice</a>
     </div>
   </main>
   <script>
   (function(){
+    // Treatment filter: shows every matching practice, and remembers the pick
+    var chips=document.querySelectorAll('.chip-btn');
+    var allCards=document.querySelectorAll('.practice-card');
+    var moreWrap=document.querySelector('.see-more-wrap');
+    var sub=document.querySelector('.page-band__sub');
+    var subDefault=sub.innerHTML;
+    function filter(id){
+      chips.forEach(function(c){ c.setAttribute('aria-pressed', String(c.dataset.filter===id)); });
+      var n=0;
+      allCards.forEach(function(card){
+        var match=!id || (' '+card.dataset.concerns+' ').indexOf(' '+id+' ')>=0;
+        card.classList.toggle('practice-filtered', !match);
+        if(id && match){ card.classList.remove('practice-hidden'); }
+        if(match) n++;
+      });
+      if(moreWrap) moreWrap.style.display = id ? 'none' : '';
+      sub.innerHTML = id ? '<span class="sc-nums">'+n+'</span> listed practices offer '+document.querySelector('.chip-btn[data-filter="'+id+'"]').textContent.toLowerCase()+'.' : subDefault;
+    }
+    chips.forEach(function(c){
+      c.addEventListener('click', function(){
+        filter(c.dataset.filter);
+        if(window.GoDentalSearch) GoDentalSearch.set({ concern: c.dataset.filter, state: 'QLD' });
+      });
+    });
+    var saved=window.GoDentalSearch ? GoDentalSearch.get() : {};
+    if(saved.concern && document.querySelector('.chip-btn[data-filter="'+saved.concern+'"]')) filter(saved.concern);
+
     var btn=document.getElementById('see-more-btn');
     if(btn){
       var cards=document.querySelectorAll('.practice-card');
@@ -343,15 +430,49 @@
     });
   })();
   </script>
+  </div>
   <footer class="site-footer">
-    <div class="container">
-      <p>&copy; 2026 GoDental.au. All rights reserved.</p>
+    <div class="wrap footer-inner">
+      <div class="footer-brand">
+        <img src="/images/logo.png" alt="GoDental.au" width="979" height="233" loading="lazy">
+        <p>Australia&rsquo;s dental directory. Every listing is submitted by the practice and checked by hand before it goes live.</p>
+      </div>
+      <nav class="footer-col" aria-label="Find a dentist by state">
+        <h2>Find a dentist</h2>
+        <ul>
+          <li><a href="/vic/">Victoria</a></li>
+          <li><a href="/nsw/">New South Wales</a></li>
+          <li><a href="/qld/">Queensland</a></li>
+          <li><a href="/sa/">South Australia</a></li>
+          <li><a href="/wa/">Western Australia</a></li>
+          <li><a href="/tas/">Tasmania</a></li>
+          <li><a href="/nt/">Northern Territory</a></li>
+          <li><a href="/act/">Australian Capital Territory</a></li>
+        </ul>
+      </nav>
+      <nav class="footer-col" aria-label="GoDental">
+        <h2>GoDental</h2>
+        <ul>
+          <li><a href="/about/">About</a></li>
+          <li><a href="/submit-listing/">List your practice</a></li>
+          <li><a href="mailto:hello@godental.au">hello@godental.au</a></li>
+        </ul>
+      </nav>
+    </div>
+    <div class="wrap footer-base">
+      <p>&copy; 2026 GoDental.au. Free for patients. No account needed.</p>
     </div>
   </footer>
   <script>
-    document.querySelector('.nav-toggle').addEventListener('click', function() {
-      document.querySelector('.site-nav').classList.toggle('open');
+  (function(){
+    var toggle = document.querySelector('.nav-toggle');
+    var nav = document.getElementById('site-nav');
+    toggle.addEventListener('click', function(){
+      var open = nav.classList.toggle('open');
+      toggle.setAttribute('aria-expanded', String(open));
     });
+    if (window.GoDentalSearch) GoDentalSearch.paint();
+  })();
   </script>
 </body>
 </html>

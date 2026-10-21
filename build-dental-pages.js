@@ -3259,6 +3259,25 @@ if (fs.existsSync(newListingsPath)) {
 }
 
 // ============================================================
+// CONCERNS — plain-language treatment groups behind the smile chart and the
+// search filter. A practice belongs to a group when any listed service matches.
+// ============================================================
+const concerns = [
+  { id: 'checkups', name: 'Check-ups and fillings', short: 'Check-ups', match: /general|prevent|check-?up|clean|filling|family|restorat/i },
+  { id: 'cosmetic', name: 'Whitening and veneers', short: 'Whitening', match: /whiten|veneer|cosmetic|makeover|bonding|smile design/i },
+  { id: 'straighten', name: 'Straightening', short: 'Straightening', match: /orthodont|invisalign|braces|aligner|retainer/i },
+  { id: 'rootcanal', name: 'Root canal', short: 'Root canal', match: /root canal|endodont|apicoect|retreatment/i },
+  { id: 'wisdom', name: 'Wisdom teeth and oral surgery', short: 'Wisdom teeth', match: /wisdom|oral surg|extraction|dental surgery/i },
+  { id: 'missing', name: 'Missing or broken teeth', short: 'Implants', match: /implant|denture|bridge|crown|all-on/i },
+  { id: 'emergency', name: 'Emergency care', short: 'Emergency', match: /emergency|trauma/i, toggle: true },
+  { id: 'kids', name: "Children's dentistry", short: 'Kids', match: /child|kids|paediatric|pediatric|cdbs/i, toggle: true },
+];
+
+function concernsFor(practice) {
+  return concerns.filter((c) => practice.services.some((s) => c.match.test(s))).map((c) => c.id);
+}
+
+// ============================================================
 // STATE PAGE CONTENT (intro, below-fold, FAQs)
 // ============================================================
 const stateContent = {
@@ -3513,20 +3532,23 @@ function stateNav(currentSlug) {
   const stateLinks = states
     .map(
       (s) =>
-        `<a href="/${s.slug}/"${s.slug === currentSlug ? ' class="active"' : ''}>${s.abbr}</a>`
+        `<a href="/${s.slug}/"${s.slug === currentSlug ? ' aria-current="page"' : ''}>${s.abbr}</a>`
     )
-    .join('\n              ');
-  return stateLinks + `
-              <span class="nav-divider"></span>
-              <a href="/about/">About</a>
-              <a href="/submit-listing/" class="nav-cta"><i class="fa-solid fa-tooth"></i> List Your Practice</a>`;
+    .join('\n          ');
+  return `<div class="site-nav__states">
+          ${stateLinks}
+        </div>
+        <a href="/about/" class="site-nav__link">About</a>
+        <a href="/submit-listing/" class="btn btn--quiet site-nav__cta">List your practice</a>`;
 }
 
 // ============================================================
 // HTML TEMPLATES
 // ============================================================
 
-function htmlShell({ title, metaDescription, bodyClass, content, canonical, noindex }) {
+function htmlShell({ title, metaDescription, bodyClass, content, canonical, noindex, scrollcraft, navState }) {
+  const year = new Date().getFullYear();
+  const concernNames = Object.fromEntries(concerns.map((c) => [c.id, c.short]));
   return `<!DOCTYPE html>
 <html lang="en-AU">
 <head>
@@ -3534,32 +3556,103 @@ function htmlShell({ title, metaDescription, bodyClass, content, canonical, noin
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>${escapeHtml(title)}</title>
   <meta name="description" content="${escapeHtml(metaDescription)}">${noindex ? '\n  <meta name="robots" content="noindex, nofollow">' : ''}
+  <meta name="theme-color" content="#F5F8F8">
   <link rel="icon" href="/favicon.ico" sizes="32x32">
   <link rel="icon" href="/images/favicon-192.png" type="image/png" sizes="192x192">
   <link rel="apple-touch-icon" href="/images/apple-touch-icon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700&family=Geist:wght@400;500;600&display=swap">${scrollcraft ? '\n  <link rel="stylesheet" href="/scrollcraft.css">\n  <script src="/scrollcraft.js" defer></script>' : ''}
   <link rel="stylesheet" href="/styles.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <script>
+  (function(){
+    // "Your search" pill: the visitor's chosen treatment and state, carried across pages.
+    var names = ${JSON.stringify(concernNames)};
+    function paint(sel){
+      var pill = document.querySelector('[data-your-search]');
+      if (!pill) return;
+      sel = sel || window.GoDentalSearch.get();
+      var parts = [];
+      if (sel.concern && names[sel.concern]) parts.push(names[sel.concern]);
+      if (sel.state) parts.push(sel.state);
+      if (!parts.length) { pill.hidden = true; return; }
+      var qs = new URLSearchParams();
+      if (sel.concern) qs.set('concern', sel.concern);
+      if (sel.state) qs.set('state', sel.state);
+      pill.href = '/search/?' + qs.toString();
+      pill.querySelector('[data-your-search-value]').textContent = parts.join(' \\u00b7 ');
+      pill.hidden = false;
+    }
+    window.GoDentalSearch = {
+      paint: function(){ paint(); },
+      get: function(){ try { return JSON.parse(localStorage.getItem('gd-search') || '{}'); } catch (e) { return {}; } },
+      set: function(patch){
+        var sel = this.get();
+        for (var k in patch) { if (patch[k]) sel[k] = patch[k]; else delete sel[k]; }
+        try { localStorage.setItem('gd-search', JSON.stringify(sel)); } catch (e) {}
+        paint(sel);
+        document.dispatchEvent(new CustomEvent('gd:search', { detail: sel }));
+        return sel;
+      }
+    };
+  })();
+  </script>
 </head>
 <body class="${bodyClass}">
+  <a class="skip-link" href="#main">Skip to content</a>
   <header class="site-header">
-    <div class="container header-inner">
-      <a href="/" class="site-logo"><img src="/images/logo.png" alt="GoDental.au" height="36"></a>
-      <nav class="site-nav">
-        ${stateNav('')}
+    <div class="wrap header-inner">
+      <a href="/" class="site-logo"><img src="/images/logo.png" alt="GoDental.au" width="979" height="233"></a>
+      <nav class="site-nav" id="site-nav" aria-label="Main">
+        ${stateNav(navState || '')}
       </nav>
-      <button class="nav-toggle" aria-label="Toggle navigation">&#9776;</button>
+      <a class="your-search" href="/search/" data-your-search hidden>
+        <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+        <span class="your-search__label">Your search</span>
+        <span class="your-search__value" data-your-search-value></span>
+      </a>
+      <button class="nav-toggle" aria-label="Menu" aria-expanded="false" aria-controls="site-nav"><i class="fa-solid fa-bars" aria-hidden="true"></i></button>
     </div>
   </header>
+  <div id="main">
   ${content}
+  </div>
   <footer class="site-footer">
-    <div class="container">
-      <p>&copy; ${new Date().getFullYear()} GoDental.au. All rights reserved.</p>
+    <div class="wrap footer-inner">
+      <div class="footer-brand">
+        <img src="/images/logo.png" alt="GoDental.au" width="979" height="233" loading="lazy">
+        <p>Australia&rsquo;s dental directory. Every listing is submitted by the practice and checked by hand before it goes live.</p>
+      </div>
+      <nav class="footer-col" aria-label="Find a dentist by state">
+        <h2>Find a dentist</h2>
+        <ul>
+          ${states.map((s) => `<li><a href="/${s.slug}/">${s.name}</a></li>`).join('\n          ')}
+        </ul>
+      </nav>
+      <nav class="footer-col" aria-label="GoDental">
+        <h2>GoDental</h2>
+        <ul>
+          <li><a href="/about/">About</a></li>
+          <li><a href="/submit-listing/">List your practice</a></li>
+          <li><a href="mailto:hello@godental.au">hello@godental.au</a></li>
+        </ul>
+      </nav>
+    </div>
+    <div class="wrap footer-base">
+      <p>&copy; ${year} GoDental.au. Free for patients. No account needed.</p>
     </div>
   </footer>
   <script>
-    document.querySelector('.nav-toggle').addEventListener('click', function() {
-      document.querySelector('.site-nav').classList.toggle('open');
+  (function(){
+    var toggle = document.querySelector('.nav-toggle');
+    var nav = document.getElementById('site-nav');
+    toggle.addEventListener('click', function(){
+      var open = nav.classList.toggle('open');
+      toggle.setAttribute('aria-expanded', String(open));
     });
+    if (window.GoDentalSearch) GoDentalSearch.paint();
+  })();
   </script>
 </body>
 </html>`;
@@ -3651,6 +3744,7 @@ function generateSearchData(postcodeMap) {
           lng: Math.round(geo.lng * 10000) / 10000,
           featured: p.featured || false,
           services: p.services ? p.services.slice(0, 5) : [],
+          c: concernsFor(p),
           img: hasScreenshot ? 1 : 0,
         });
         matched++;
@@ -3665,21 +3759,130 @@ function generateSearchData(postcodeMap) {
   return searchData;
 }
 
+// --- Smile chart (homepage signature) ---
+// Two arches of eight teeth per side, drawn as an occlusal chart. Each tooth
+// belongs to a treatment group; geometry is computed here so the page ships
+// plain SVG.
+const TOOTH_GROUPS = {
+  upper: ['cosmetic', 'cosmetic', 'cosmetic', 'checkups', 'checkups', 'rootcanal', 'rootcanal', 'wisdom'],
+  lower: ['straighten', 'straighten', 'straighten', 'checkups', 'checkups', 'missing', 'missing', 'wisdom'],
+};
+const TOOTH_ANGLES = [0.1, 0.29, 0.48, 0.67, 0.86, 1.08, 1.31, 1.53];
+const TOOTH_SIZES = [[24, 30], [20, 28], [22, 30], [24, 26], [24, 26], [32, 30], [30, 30], [27, 27]];
+
+function smileChartSvg() {
+  const A = 148;
+  const B = 150;
+  const cx = 210;
+  const r = (n) => Math.round(n * 10) / 10;
+  const arches = [
+    { key: 'upper', top: 36, dir: 1 },
+    { key: 'lower', top: 404, dir: -1 },
+  ];
+  const teeth = [];
+  const gums = [];
+  const labels = [];
+  for (const arch of arches) {
+    const pt = (phi, grow = 0) => ({
+      x: cx + (A + grow) * Math.sin(phi),
+      y: arch.top + arch.dir * ((B + grow) - (B + grow) * Math.cos(phi)) - arch.dir * grow,
+    });
+    // Gum band: one path out along the outer edge and back along the inner edge
+    const steps = 48;
+    const outer = [];
+    const inner = [];
+    for (let i = 0; i <= steps; i++) {
+      const phi = -1.62 + (3.24 * i) / steps;
+      outer.push(pt(phi, 24));
+      inner.push(pt(phi, -24));
+    }
+    const d = `M${outer.map((p) => `${r(p.x)} ${r(p.y)}`).join(' L')} L${inner.reverse().map((p) => `${r(p.x)} ${r(p.y)}`).join(' L')} Z`;
+    gums.push(`<path class="chart-gum" d="${d}" pathLength="1"/>`);
+
+    TOOTH_ANGLES.forEach((a, i) => {
+      for (const side of [-1, 1]) {
+        const phi = a * side;
+        const p = pt(phi);
+        const tx = A * Math.cos(phi);
+        const ty = arch.dir * B * Math.sin(phi);
+        const angle = (Math.atan2(ty, tx) * 180) / Math.PI;
+        const [w, h] = TOOTH_SIZES[i];
+        const group = TOOTH_GROUPS[arch.key][i];
+        teeth.push(
+          `<rect class="tooth" data-concern="${group}" style="--d:${r(i / 7)}" x="${r(p.x - w / 2)}" y="${r(p.y - h / 2)}" width="${w}" height="${h}" rx="${r(Math.min(w, h) * 0.42)}" transform="rotate(${r(angle)} ${r(p.x)} ${r(p.y)})"/>`
+        );
+      }
+    });
+
+    // One label per group, on the right-hand side, outside the arch
+    const seen = new Set();
+    TOOTH_GROUPS[arch.key].forEach((group, i) => {
+      if (seen.has(group) || group === 'checkups' && arch.key === 'lower') return;
+      seen.add(group);
+      const idx = TOOTH_GROUPS[arch.key].map((g, j) => (g === group ? j : -1)).filter((j) => j >= 0);
+      const mid = idx.reduce((s, j) => s + TOOTH_ANGLES[j], 0) / idx.length;
+      const p = pt(mid, 48);
+      const c = concerns.find((x) => x.id === group);
+      labels.push(
+        `<text class="chart-label" data-concern="${group}" style="--d:${r(i / 7)}" x="${r(p.x + 8)}" y="${r(p.y + 5)}">${escapeHtml(c.short)}</text>`
+      );
+    });
+  }
+  return `<svg class="chart-svg" viewBox="0 0 530 440" role="img" aria-labelledby="chart-svg-title">
+          <title id="chart-svg-title">Dental chart: upper and lower teeth grouped by treatment</title>
+          <g class="chart-gums">${gums.join('')}</g>
+          <g class="chart-teeth">${teeth.join('')}</g>
+          <g class="chart-labels" aria-hidden="true">${labels.join('')}</g>
+        </svg>`;
+}
+
 // --- Homepage ---
 function buildHomepage() {
-  const stateCards = states
-    .map((s) => {
-      const count = practices[s.slug].length;
-      return `
-        <a href="/${s.slug}/" class="state-card">
-          <h2>${s.name}</h2>
-          <span class="state-abbr">${s.abbr}</span>
-          <p>${count} dental practice${count !== 1 ? 's' : ''}</p>
-        </a>`;
-    })
-    .join('\n');
+  const all = states.flatMap((s) => practices[s.slug].map((p) => ({ ...p, stateAbbr: s.abbr })));
+  const totalPractices = all.length;
+  const maxState = Math.max(...states.map((s) => practices[s.slug].length));
 
-  const totalPractices = Object.values(practices).reduce((sum, arr) => sum + arr.length, 0);
+  // Real counts for every concern, overall and by state, computed from the listings
+  const concernData = Object.fromEntries(
+    concerns.map((c) => {
+      const byState = Object.fromEntries(
+        states.map((s) => [s.abbr, practices[s.slug].filter((p) => concernsFor(p).includes(c.id)).length])
+      );
+      return [c.id, { name: c.name, short: c.short, total: Object.values(byState).reduce((a, b) => a + b, 0), byState }];
+    })
+  );
+
+  const chartButtons = concerns
+    .filter((c) => !c.toggle)
+    .map(
+      (c) => `<li><button type="button" class="concern-btn" data-concern="${c.id}" aria-pressed="false">
+              <span class="concern-btn__name">${escapeHtml(c.name)}</span>
+              <span class="concern-btn__count sc-nums">${concernData[c.id].total}</span>
+            </button></li>`
+    )
+    .join('\n            ');
+  const chartToggles = concerns
+    .filter((c) => c.toggle)
+    .map(
+      (c) => `<button type="button" class="concern-btn concern-btn--toggle" data-concern="${c.id}" aria-pressed="false">
+              <i class="fa-solid ${c.id === 'emergency' ? 'fa-bolt' : 'fa-child-reaching'}" aria-hidden="true"></i>
+              <span class="concern-btn__name">${c.id === 'emergency' ? 'It hurts right now' : 'For kids'}</span>
+            </button>`
+    )
+    .join('\n            ');
+
+  const stateRows = states
+    .map(
+      (s) => `<li class="state-plate">
+          <a href="/${s.slug}/" class="state-plate__link" data-state="${s.abbr}">
+            <span class="state-plate__abbr">${s.abbr}</span>
+            <span class="state-plate__name">${s.name}</span>
+            <span class="state-plate__count"><span class="sc-nums" data-sc-count="0 ${practices[s.slug].length}">${practices[s.slug].length}</span> practices</span>
+            <span class="state-plate__match" data-state-match="${s.abbr}" hidden></span>
+          </a>
+        </li>`
+    )
+    .join('\n        ');
 
   // New listings: shown for NEW_LISTING_DAYS after going live, grouped by state.
   // The build filters expired ones; the inline script also hides any that expire
@@ -3692,184 +3895,365 @@ function buildHomepage() {
         .sort((a, b) => b.listedDate.localeCompare(a.listedDate) || a.name.localeCompare(b.name)),
     }))
     .filter((g) => g.items.length);
+  const newCount = newGroups.reduce((n, g) => n + g.items.length, 0);
 
   const newListingsSection = newGroups.length
     ? `
-    <section class="new-listings" id="new-listings">
-      <h2 class="section-heading">New Listings</h2>
-      <p class="new-listings-sub">Dental practices added to GoDental.au in the last ${NEW_LISTING_DAYS} days.</p>
-      <div class="new-listings-grid">
+  <section class="new-listings" id="new-listings" data-sc-act="pan" data-sc-span="${Math.max(2.2, newGroups.length * 0.55 + 1)}" aria-labelledby="new-listings-title">
+    <div class="new-stage" data-sc-stage>
+      <div class="new-rail" data-sc-pan="0.04">
+        <div class="new-rail__intro">
+          <h2 id="new-listings-title" class="h2">New on GoDental</h2>
+          <p><span class="sc-nums">${newCount}</span> practices joined in the last ${NEW_LISTING_DAYS} days. Each one was submitted by the practice and checked by hand.</p>
+        </div>
         ${newGroups
           .map(
             (g) => `
-        <div class="new-state-group">
-          <h3><a href="/${g.state.slug}/">${g.state.name}</a> <span class="state-abbr">${g.state.abbr}</span></h3>
+        <div class="new-group">
+          <h3><a href="/${g.state.slug}/">${g.state.name}</a> <span class="chip">${g.state.abbr}</span></h3>
           <ul>
             ${g.items
               .map(
-                (p) => `<li data-expires="${newListingExpiry(p.listedDate).toISOString()}"><a href="/${g.state.slug}/${p.slug}/">${escapeHtml(p.name)}</a><span class="new-listing-suburb">${escapeHtml(p.suburb)}</span></li>`
+                (p) => `<li data-expires="${newListingExpiry(p.listedDate).toISOString()}"><a href="/${g.state.slug}/${p.slug}/">${escapeHtml(p.name)}</a><span>${escapeHtml(p.suburb)}</span></li>`
               )
               .join('\n            ')}
           </ul>
         </div>`
           )
           .join('\n')}
-      </div>
-    </section>
-    <script>
-    (function(){
-      var now = Date.now();
-      document.querySelectorAll('#new-listings li[data-expires]').forEach(function(li){
-        if (Date.parse(li.getAttribute('data-expires')) <= now) li.remove();
-      });
-      document.querySelectorAll('#new-listings .new-state-group').forEach(function(g){
-        if (!g.querySelector('li')) g.remove();
-      });
-      if (!document.querySelector('#new-listings li')) document.getElementById('new-listings').remove();
-    })();
-    </script>`
-    : '';
-
-  const content = `
-  <section class="hero">
-    <div class="hero-bg">
-      <img src="/images/hero-dental-desk.png" alt="" width="1400" height="420">
-    </div>
-    <div class="container hero-content">
-      <h1>Find Your Perfect Dentist</h1>
-      <p class="hero-sub">Australia&rsquo;s trusted dental directory &mdash; browse ${totalPractices} verified practices across every state and territory.</p>
-      <div class="search-wrap">
-        <div class="search-bar">
-          <i class="fa-solid fa-magnifying-glass search-icon"></i>
-          <input type="text" id="search-input" class="search-input"
-                 placeholder="Search by suburb or postcode..."
-                 autocomplete="off" aria-label="Search by suburb or postcode">
-          <ul id="search-autocomplete" class="search-autocomplete" role="listbox"></ul>
+        <div class="new-rail__outro">
+          <p>Run a dental practice? Listing is free.</p>
+          <a href="/submit-listing/" class="btn btn--quiet">List your practice</a>
         </div>
-      </div>
-      <div class="hero-stats">
-        <div class="hero-stat"><i class="fa-solid fa-tooth hero-stat-icon"></i><span class="hero-stat-number">${totalPractices}</span><span class="hero-stat-label">Practices</span></div>
-        <div class="hero-stat"><i class="fa-solid fa-map-location-dot hero-stat-icon"></i><span class="hero-stat-number">${states.length}</span><span class="hero-stat-label">States &amp; Territories</span></div>
-        <div class="hero-stat"><i class="fa-solid fa-magnifying-glass hero-stat-icon"></i><span class="hero-stat-number">100%</span><span class="hero-stat-label">Free to Search</span></div>
       </div>
     </div>
   </section>
-  <main class="container">
-    <h2 class="section-heading">Browse by State</h2>
-    <section class="state-grid">
-      ${stateCards}
-    </section>${newListingsSection}
-    <section class="home-cta">
-      <div class="home-cta-inner">
-        <h2>Are you a dental practice?</h2>
-        <p>Get your practice listed on GoDental.au and reach thousands of Australians searching for a dentist.</p>
-        <a href="/submit-listing/" class="btn btn-call btn-lg">Submit Your Listing</a>
-      </div>
-    </section>
-  </main>
   <script>
   (function(){
+    var now = Date.now();
+    document.querySelectorAll('#new-listings li[data-expires]').forEach(function(li){
+      if (Date.parse(li.getAttribute('data-expires')) <= now) li.remove();
+    });
+    document.querySelectorAll('#new-listings .new-group').forEach(function(g){
+      if (!g.querySelector('li')) g.remove();
+    });
+    if (!document.querySelector('#new-listings li')) document.getElementById('new-listings').remove();
+  })();
+  </script>`
+    : '';
+
+  const concernOptions = concerns
+    .map((c) => `<option value="${c.id}">${escapeHtml(c.name)}</option>`)
+    .join('');
+  const stateOptions = states.map((s) => `<option value="${s.abbr}">${s.name}</option>`).join('');
+
+  const content = `
+  <main class="home" id="home">
+
+  <section class="hero" data-sc-act="pin" data-sc-span="1.7" aria-labelledby="hero-title">
+    <div class="hero-stage" data-sc-stage>
+      <div class="hero-plane hero-plane--room" aria-hidden="true">
+        <picture>
+          <img src="/images/home/hero-room.jpg" alt="" width="2048" height="1152" fetchpriority="high">
+        </picture>
+        <img class="hero-desk" src="/images/home/hero-desk.png" alt="" width="2048" height="1152">
+      </div>
+      <div class="hero-veil" aria-hidden="true"></div>
+      <div class="hero-copy">
+        <h1 id="hero-title" class="display">Find a dentist you&rsquo;ll actually go back to.</h1>
+        <p class="hero-sub">${totalPractices} Australian practices, each checked by hand. Search by suburb, or start with the tooth that hurts.</p>
+        <form class="hero-search" action="/search/" method="get" role="search" autocomplete="off">
+          <label for="search-input" class="visually-hidden">Suburb or postcode</label>
+          <i class="fa-solid fa-location-dot" aria-hidden="true"></i>
+          <input type="text" id="search-input" name="q" class="hero-search__input" placeholder="Suburb or postcode" autocomplete="off">
+          <button type="submit" class="btn btn--primary">Find a dentist</button>
+          <ul id="search-autocomplete" class="search-autocomplete" role="listbox"></ul>
+        </form>
+      </div>
+      <div class="hero-door" aria-hidden="true">
+        <div class="hero-door__glass"></div>
+        <div class="hero-door__handle"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="hush" aria-label="How GoDental works">
+    <p class="hush__line" data-sc-in>Most directories ask where you live first. <span>We start with what&rsquo;s bothering you.</span></p>
+  </section>
+
+  <section class="chart-act" id="chart" data-sc-act="pin" data-sc-span="2.6" aria-labelledby="chart-title">
+    <div class="chart-stage" data-sc-stage>
+      <div class="wrap chart-layout">
+        <div class="chart-intro">
+          <h2 id="chart-title" class="h2">Tap the tooth that&rsquo;s bothering you.</h2>
+          <p class="lede">Each part of the smile is a kind of treatment. Pick one and we&rsquo;ll show you how many listed practices offer it, and where.</p>
+        </div>
+        <div class="chart-controls">
+          <ul class="concern-list" aria-label="Treatments">
+            ${chartButtons}
+          </ul>
+          <div class="concern-toggles">
+            ${chartToggles}
+          </div>
+        </div>
+        <div class="chart-figure">
+          ${smileChartSvg()}
+        </div>
+        <div class="chart-panel" aria-live="polite">
+          <p class="chart-panel__kicker" data-panel-kicker>Pick a tooth</p>
+          <p class="chart-panel__count"><span class="sc-nums" data-panel-count>${totalPractices}</span></p>
+          <p class="chart-panel__name" data-panel-name>practices listed across Australia</p>
+          <ol class="chart-bars" data-panel-bars>
+            ${states
+              .map(
+                (s) => `<li><span class="chart-bars__abbr">${s.abbr}</span><span class="chart-bars__track"><span class="chart-bars__fill" data-bar="${s.abbr}" style="--v:${(practices[s.slug].length / maxState).toFixed(3)}"></span></span><span class="chart-bars__n sc-nums" data-bar-n="${s.abbr}">${practices[s.slug].length}</span></li>`
+              )
+              .join('\n            ')}
+          </ol>
+          <a class="btn btn--primary chart-panel__go" href="/search/" data-panel-go>Find a dentist</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="states" data-sc-act="flow" aria-labelledby="states-title">
+    <div class="wrap">
+      <div class="states-head" data-sc-in>
+        <h2 id="states-title" class="h2">Where are you?</h2>
+        <p class="lede" data-states-lede>Every state and territory, with the number of listed practices in each.</p>
+      </div>
+      <div class="states-wipe" data-sc-reveal="up" data-sc-reveal-at="0 0.35">
+        <ul class="state-plates">
+        ${stateRows}
+        </ul>
+      </div>
+    </div>
+  </section>
+  ${newListingsSection}
+
+  <section class="trust" data-sc-act="flow" aria-labelledby="trust-title">
+    <div class="wrap trust-layout">
+      <figure class="trust-photo">
+        <div class="trust-photo__frame">
+          <img src="/images/home/trust.jpg" alt="A dental practice front desk with appointment cards, a small plant and a glass of water in morning light" width="1050" height="1400" loading="lazy" data-sc-parallax="-0.6">
+        </div>
+      </figure>
+      <div class="trust-copy" data-sc-in data-sc-stagger="70">
+        <h2 id="trust-title" class="h2">Why you can trust the list</h2>
+        <p class="lede">GoDental is small on purpose. Nobody gets on it by accident.</p>
+        <dl class="trust-facts">
+          <div><dt>Submitted by the practice</dt><dd>Every listing comes from the practice owner, manager or their own staff.</dd></div>
+          <div><dt>Checked by a person</dt><dd>Addresses, phone numbers and services are read and corrected by hand before anything goes live.</dd></div>
+          <div><dt>No agencies</dt><dd>We don&rsquo;t accept listings from marketing agencies or third-party listing services.</dd></div>
+          <div><dt>Free for patients</dt><dd>No account, no booking fee. Call the practice directly.</dd></div>
+        </dl>
+      </div>
+    </div>
+  </section>
+
+  <section class="closing" id="appointment" aria-labelledby="card-title">
+    <div class="wrap closing-layout">
+      <form class="appt-card" action="/search/" method="get" data-sc-in>
+        <div class="appt-card__head">
+          <img src="/images/favicon-192.png" alt="" width="40" height="40">
+          <h2 id="card-title">Your appointment card</h2>
+        </div>
+        <div class="appt-card__row">
+          <label for="appt-concern">Treatment</label>
+          <select id="appt-concern" name="concern"><option value="">Anything</option>${concernOptions}</select>
+        </div>
+        <div class="appt-card__row">
+          <label for="appt-state">State</label>
+          <select id="appt-state" name="state"><option value="">Anywhere</option>${stateOptions}</select>
+        </div>
+        <div class="appt-card__row">
+          <label for="appt-q">Suburb or postcode</label>
+          <input id="appt-q" name="q" type="text" inputmode="text" placeholder="Optional" autocomplete="postal-code">
+        </div>
+        <div class="appt-card__foot">
+          <button type="submit" class="btn btn--primary btn--lg">Find a dentist</button>
+          <p>Free, no account needed.</p>
+        </div>
+      </form>
+      <div class="closing-aside">
+        <p class="closing-aside__line">That&rsquo;s it. No sign-up, no booking fee. Just the practices, and their phone numbers.</p>
+        <p>Run a practice? <a href="/submit-listing/">List your practice</a>, it&rsquo;s free.</p>
+      </div>
+    </div>
+  </section>
+
+  </main>
+  <script>
+  document.addEventListener('DOMContentLoaded', function(){
+    var DATA = ${JSON.stringify(concernData)};
+    var TOTAL = ${totalPractices};
+    var STATE_TOTALS = ${JSON.stringify(Object.fromEntries(states.map((s) => [s.abbr, practices[s.slug].length])))};
+    var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var narrow = window.matchMedia('(max-width: 860px)').matches;
+    var home = document.getElementById('home');
+    var chart = document.getElementById('chart');
+
+    // Phones get the chart in natural flow: a pinned instrument taller than the
+    // screen cannot be tapped comfortably.
+    if (narrow || reduce) chart.setAttribute('data-sc-act', 'flow');
+    // Reduced motion: nothing animates in the hero, so it should not hold the page either
+    if (reduce) document.querySelector('.hero').setAttribute('data-sc-act', 'flow');
+    if (window.ScrollCraft) ScrollCraft.mount(home);
+
+    // ---- smile chart -------------------------------------------------------
+    var order = ['wisdom', 'rootcanal', 'missing', 'checkups', 'straighten', 'cosmetic'];
+    var chosen = null;
+    var shown = undefined;
+    var kicker = chart.querySelector('[data-panel-kicker]');
+    var countEl = chart.querySelector('[data-panel-count]');
+    var nameEl = chart.querySelector('[data-panel-name]');
+    var goEl = chart.querySelector('[data-panel-go]');
+    var buttons = chart.querySelectorAll('.concern-btn');
+
+    function show(id, demo) {
+      if (id === shown) return;
+      shown = id;
+      chart.setAttribute('data-active', id || '');
+      buttons.forEach(function(b){ b.setAttribute('aria-pressed', String(!demo && b.dataset.concern === id)); });
+      var d = id ? DATA[id] : null;
+      kicker.textContent = d ? (demo ? 'For example' : 'Your pick') : 'Pick a tooth';
+      countEl.textContent = d ? d.total : TOTAL;
+      nameEl.textContent = d ? 'practices offer ' + d.name.toLowerCase() : 'practices listed across Australia';
+      var max = 1;
+      Object.keys(STATE_TOTALS).forEach(function(s){ max = Math.max(max, d ? d.byState[s] : STATE_TOTALS[s]); });
+      Object.keys(STATE_TOTALS).forEach(function(s){
+        var n = d ? d.byState[s] : STATE_TOTALS[s];
+        chart.querySelector('[data-bar="' + s + '"]').style.setProperty('--v', (n / max).toFixed(3));
+        chart.querySelector('[data-bar-n="' + s + '"]').textContent = n;
+      });
+      goEl.href = '/search/' + (id ? '?concern=' + id : '');
+    }
+
+    function choose(id) {
+      chosen = (chosen === id) ? null : id;
+      show(chosen, false);
+      if (window.GoDentalSearch) GoDentalSearch.set({ concern: chosen });
+      paintStates();
+      document.getElementById('appt-concern').value = chosen || '';
+    }
+
+    buttons.forEach(function(b){ b.addEventListener('click', function(){ choose(b.dataset.concern); }); });
+    chart.querySelectorAll('.tooth').forEach(function(t){
+      t.addEventListener('click', function(){ choose(t.getAttribute('data-concern')); });
+    });
+
+    // Scroll draws the arch; once drawn, a pinned stage walks through the groups
+    // until the visitor picks one.
+    var ticking = false;
+    function frame() {
+      ticking = false;
+      var r = chart.getBoundingClientRect();
+      var vh = window.innerHeight;
+      var draw = reduce ? 1 : Math.min(1, Math.max(0, (vh * 0.85 - r.top) / (Math.min(r.height, vh * 1.6) * 0.55)));
+      chart.style.setProperty('--draw', draw.toFixed(3));
+      if (chosen || narrow || reduce) return;
+      var pin = Math.min(1, Math.max(0, -r.top / Math.max(1, r.height - vh)));
+      var i = Math.floor((pin - 0.32) / 0.5 * order.length);
+      show(pin > 0.32 && i < order.length ? order[i] : null, true);
+    }
+    function onScroll() { if (!ticking) { ticking = true; requestAnimationFrame(frame); } }
+    addEventListener('scroll', onScroll, { passive: true });
+    addEventListener('resize', onScroll, { passive: true });
+    frame();
+
+    // ---- states: show how many match the chosen treatment -----------------
+    var statesLede = document.querySelector('[data-states-lede]');
+    var statesLedeDefault = statesLede.textContent;
+    function paintStates() {
+      var d = chosen ? DATA[chosen] : null;
+      document.querySelectorAll('[data-state-match]').forEach(function(el){
+        var s = el.getAttribute('data-state-match');
+        if (d) { el.textContent = d.byState[s] + ' offer ' + d.short.toLowerCase(); el.hidden = false; }
+        else el.hidden = true;
+      });
+      statesLede.textContent = d ? 'Every state and territory. Underneath: how many offer ' + d.name.toLowerCase() + '.' : statesLedeDefault;
+    }
+    document.querySelectorAll('[data-state]').forEach(function(a){
+      a.addEventListener('click', function(){ if (window.GoDentalSearch) GoDentalSearch.set({ state: a.dataset.state }); });
+    });
+
+    // ---- appointment card: arrives filled in with the visitor's choices ---
+    var saved = window.GoDentalSearch ? GoDentalSearch.get() : {};
+    if (saved.concern && DATA[saved.concern]) { chosen = saved.concern; show(chosen, false); paintStates(); }
+    document.getElementById('appt-concern').value = saved.concern || '';
+    document.getElementById('appt-state').value = saved.state || '';
+    document.addEventListener('gd:search', function(e){
+      document.getElementById('appt-state').value = e.detail.state || '';
+    });
+    document.querySelector('.appt-card').addEventListener('submit', function(e){
+      var f = e.target;
+      ['concern', 'state', 'q'].forEach(function(n){ if (!f.elements[n].value) f.elements[n].disabled = true; });
+      if (window.GoDentalSearch) GoDentalSearch.set({ concern: f.elements.concern.value, state: f.elements.state.value });
+    });
+
+    // ---- hero search autocomplete -----------------------------------------
     var input = document.getElementById('search-input');
     var ac = document.getElementById('search-autocomplete');
     var suburbs = null;
+    var matches = [];
     var activeIdx = -1;
-
+    function esc(s) { var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
     function loadSuburbs(cb) {
       if (suburbs) return cb();
-      fetch('/suburbs.json').then(function(r){ return r.json(); }).then(function(data){
-        suburbs = data;
-        cb();
-      });
+      fetch('/suburbs.json').then(function(r){ return r.json(); }).then(function(data){ suburbs = data; cb(); });
     }
-
-    function render(matches) {
-      if (!matches.length) { ac.classList.remove('open'); ac.innerHTML = ''; activeIdx = -1; return; }
+    function go(m) {
+      window.location.href = '/search/?q=' + encodeURIComponent(m.postcode)
+        + '&suburb=' + encodeURIComponent(m.suburb) + '&state=' + encodeURIComponent(m.state);
+    }
+    function render() {
+      activeIdx = -1;
+      if (!matches.length) { ac.classList.remove('open'); ac.innerHTML = ''; return; }
       ac.innerHTML = matches.map(function(m, i){
-        return '<li role="option" data-idx="' + i + '">'
-          + '<span class="ac-suburb">' + esc(m.suburb) + '</span>'
-          + '<span class="ac-meta">' + esc(m.postcode) + ', ' + esc(m.state) + '</span>'
-          + '</li>';
+        return '<li role="option" data-idx="' + i + '"><span class="ac-suburb">' + esc(m.suburb) + '</span><span class="ac-meta">' + esc(m.postcode) + ', ' + esc(m.state) + '</span></li>';
       }).join('');
       ac.classList.add('open');
-      activeIdx = -1;
     }
-
-    function esc(s) {
-      var d = document.createElement('div'); d.textContent = s; return d.innerHTML;
-    }
-
-    function navigate(m) {
-      window.location.href = '/search/?q=' + encodeURIComponent(m.postcode)
-        + '&suburb=' + encodeURIComponent(m.suburb)
-        + '&state=' + encodeURIComponent(m.state);
-    }
-
     function setActive(idx) {
       var items = ac.querySelectorAll('li');
       items.forEach(function(li){ li.classList.remove('active'); });
-      if (idx >= 0 && idx < items.length) {
-        items[idx].classList.add('active');
-        items[idx].scrollIntoView({ block: 'nearest' });
-      }
+      if (items[idx]) items[idx].classList.add('active');
       activeIdx = idx;
     }
-
     input.addEventListener('input', function(){
       var val = this.value.trim().toLowerCase();
-      if (val.length < 2) { ac.classList.remove('open'); ac.innerHTML = ''; return; }
+      if (val.length < 2) { matches = []; render(); return; }
       loadSuburbs(function(){
         var isNum = /^\\d+$/.test(val);
-        var matches = suburbs.filter(function(s){
-          if (isNum) return s.postcode.indexOf(val) === 0;
-          return s.suburb.toLowerCase().indexOf(val) === 0;
+        matches = suburbs.filter(function(s){
+          return isNum ? s.postcode.indexOf(val) === 0 : s.suburb.toLowerCase().indexOf(val) === 0;
         }).slice(0, 8);
-        render(matches);
+        render();
       });
     });
-
     input.addEventListener('keydown', function(e){
-      var items = ac.querySelectorAll('li');
-      if (!items.length) return;
-      if (e.key === 'ArrowDown') { e.preventDefault(); setActive(Math.min(activeIdx + 1, items.length - 1)); }
+      if (!matches.length) return;
+      if (e.key === 'ArrowDown') { e.preventDefault(); setActive(Math.min(activeIdx + 1, matches.length - 1)); }
       else if (e.key === 'ArrowUp') { e.preventDefault(); setActive(Math.max(activeIdx - 1, 0)); }
-      else if (e.key === 'Enter' && activeIdx >= 0) {
-        e.preventDefault();
-        var idx = activeIdx;
-        var val = input.value.trim().toLowerCase();
-        var isNum = /^\\d+$/.test(val);
-        var matches = suburbs.filter(function(s){
-          if (isNum) return s.postcode.indexOf(val) === 0;
-          return s.suburb.toLowerCase().indexOf(val) === 0;
-        }).slice(0, 8);
-        if (matches[idx]) navigate(matches[idx]);
-      }
+      else if (e.key === 'Enter' && activeIdx >= 0) { e.preventDefault(); go(matches[activeIdx]); }
     });
-
     ac.addEventListener('click', function(e){
       var li = e.target.closest('li');
-      if (!li) return;
-      var val = input.value.trim().toLowerCase();
-      var isNum = /^\\d+$/.test(val);
-      var matches = suburbs.filter(function(s){
-        if (isNum) return s.postcode.indexOf(val) === 0;
-        return s.suburb.toLowerCase().indexOf(val) === 0;
-      }).slice(0, 8);
-      var idx = parseInt(li.getAttribute('data-idx'));
-      if (matches[idx]) navigate(matches[idx]);
+      if (li) go(matches[parseInt(li.getAttribute('data-idx'), 10)]);
     });
-
     document.addEventListener('click', function(e){
-      if (!e.target.closest('.search-bar')) { ac.classList.remove('open'); }
+      if (!e.target.closest('.hero-search')) ac.classList.remove('open');
     });
-  })();
+  });
   </script>`;
 
   return htmlShell({
-    title: 'GoDental.au — Find a Dentist Near You',
+    title: 'GoDental.au: find a dentist near you',
     metaDescription:
-      'Browse trusted dental practices across Australia. Find dentists in VIC, NSW, QLD, SA, WA, TAS, NT, and ACT with addresses, phone numbers, and services.',
+      'Find a dentist in Australia. Search ' + totalPractices + ' hand-checked dental practices by suburb, postcode or treatment, in every state and territory.',
     bodyClass: 'page-home',
     content,
+    scrollcraft: true,
   });
 }
 
@@ -3888,7 +4272,7 @@ function buildStateIndex(state) {
       const hiddenClass = idx >= BATCH ? ' practice-hidden' : '';
       const featuredBadge = p.featured ? '<span class="featured-badge"><i class="fa-solid fa-star"></i> Featured</span>' : '';
       return `
-        <div class="practice-card${featuredClass}${hiddenClass}" data-index="${idx}">
+        <div class="practice-card${featuredClass}${hiddenClass}" data-index="${idx}" data-concerns="${concernsFor(p).join(' ')}">
           <a href="/${state.slug}/${p.slug}/" class="practice-card-thumb">
             ${practicePlaceholder(p, state.slug, 'sm')}
           </a>
@@ -3959,12 +4343,20 @@ function buildStateIndex(state) {
 
   const content = `
   ${faqSchema}
-  <main class="container">
-    <nav class="breadcrumbs" aria-label="Breadcrumb">
-      <a href="/">Home</a> &rsaquo; <span>${escapeHtml(state.name)}</span>
-    </nav>
-    <h1>Dentists in ${escapeHtml(state.name)}</h1>
-    <p class="state-intro">Browse ${statePractices.length} dental practices in ${escapeHtml(state.name)}.</p>
+  <section class="page-band">
+    <div class="wrap">
+      <nav class="breadcrumbs" aria-label="Breadcrumb">
+        <a href="/">Home</a> <span aria-hidden="true">/</span> <span>${escapeHtml(state.name)}</span>
+      </nav>
+      <h1 class="display page-band__title">Dentists in ${escapeHtml(state.name)}</h1>
+      <p class="page-band__sub"><span class="sc-nums">${statePractices.length}</span> listed practices. Tap a number to call.</p>
+      <div class="concern-filter" role="group" aria-label="Filter by treatment">
+        <button type="button" class="chip-btn" data-filter="" aria-pressed="true">All</button>
+        ${concerns.map((c) => `<button type="button" class="chip-btn" data-filter="${c.id}" aria-pressed="false">${escapeHtml(c.short)}</button>`).join('\n        ')}
+      </div>
+    </div>
+  </section>
+  <main class="wrap state-main">
     ${aboveContent}
     <div class="practice-list">
       ${practiceCards}
@@ -3976,11 +4368,38 @@ function buildStateIndex(state) {
     <div class="state-cta">
       <h2>Are you a dental practice in ${escapeHtml(state.name)}?</h2>
       <p>Get your practice listed on GoDental.au and reach patients searching for dentists in ${escapeHtml(state.abbr)}.</p>
-      <a href="/submit-listing/" class="btn">Submit Your Practice</a>
+      <a href="/submit-listing/" class="btn btn--primary">List your practice</a>
     </div>
   </main>
   <script>
   (function(){
+    // Treatment filter: shows every matching practice, and remembers the pick
+    var chips=document.querySelectorAll('.chip-btn');
+    var allCards=document.querySelectorAll('.practice-card');
+    var moreWrap=document.querySelector('.see-more-wrap');
+    var sub=document.querySelector('.page-band__sub');
+    var subDefault=sub.innerHTML;
+    function filter(id){
+      chips.forEach(function(c){ c.setAttribute('aria-pressed', String(c.dataset.filter===id)); });
+      var n=0;
+      allCards.forEach(function(card){
+        var match=!id || (' '+card.dataset.concerns+' ').indexOf(' '+id+' ')>=0;
+        card.classList.toggle('practice-filtered', !match);
+        if(id && match){ card.classList.remove('practice-hidden'); }
+        if(match) n++;
+      });
+      if(moreWrap) moreWrap.style.display = id ? 'none' : '';
+      sub.innerHTML = id ? '<span class="sc-nums">'+n+'</span> listed practices offer '+document.querySelector('.chip-btn[data-filter="'+id+'"]').textContent.toLowerCase()+'.' : subDefault;
+    }
+    chips.forEach(function(c){
+      c.addEventListener('click', function(){
+        filter(c.dataset.filter);
+        if(window.GoDentalSearch) GoDentalSearch.set({ concern: c.dataset.filter, state: '${state.abbr}' });
+      });
+    });
+    var saved=window.GoDentalSearch ? GoDentalSearch.get() : {};
+    if(saved.concern && document.querySelector('.chip-btn[data-filter="'+saved.concern+'"]')) filter(saved.concern);
+
     var btn=document.getElementById('see-more-btn');
     if(btn){
       var cards=document.querySelectorAll('.practice-card');
@@ -4011,6 +4430,7 @@ function buildStateIndex(state) {
     metaDescription: `Find trusted dental practices in ${state.name}. Browse ${statePractices.length} dentists with addresses, phone numbers, and services across ${state.abbr}.`,
     bodyClass: 'page-state',
     content,
+    navState: state.slug,
   });
 }
 
@@ -4124,6 +4544,7 @@ function buildPracticeDetail(state, practice) {
     metaDescription,
     bodyClass: 'page-practice',
     content,
+    navState: state.slug,
   });
 }
 
@@ -4608,7 +5029,7 @@ function buildSearchPage() {
     }
 
     function renderCard(p) {
-      var distStr = p.distance < 1 ? '< 1 km' : p.distance.toFixed(1) + ' km';
+      var distStr = p.distance == null ? '' : p.distance < 1 ? '< 1 km' : p.distance.toFixed(1) + ' km';
       var tags = (p.services || []).map(function(s){ return '<span class="tag">' + esc(s) + '</span>'; }).join(' ');
       var featuredBadge = p.featured ? '<span class="featured-badge"><i class="fa-solid fa-star"></i> Featured</span>' : '';
       var featuredClass = p.featured ? ' featured' : '';
@@ -4621,7 +5042,7 @@ function buildSearchPage() {
         + '<h2><a href="/' + esc(p.state) + '/' + esc(p.slug) + '/">' + esc(p.name) + '</a>' + featuredBadge + '</h2>'
         + '<p class="practice-address"><i class="fa-solid fa-location-dot"></i> ' + esc(p.address) + '</p>'
         + '<div class="tags">' + tags + '</div>'
-        + '<span class="distance-badge"><i class="fa-solid fa-location-dot"></i> ' + distStr + '</span>'
+        + (distStr ? '<span class="distance-badge"><i class="fa-solid fa-location-dot"></i> ' + distStr + '</span>' : '')
         + '</div>'
         + '<div class="practice-card-action">'
         + '<a href="tel:' + p.phone.replace(/[^+\d]/g, '') + '" class="btn btn-call"><i class="fa-solid fa-phone"></i>' + esc(p.phone) + '</a>'
@@ -4630,56 +5051,80 @@ function buildSearchPage() {
     }
 
     var params = new URLSearchParams(window.location.search);
-    var q = params.get('q');
+    var q = (params.get('q') || '').trim();
     var suburbName = params.get('suburb') || '';
-    var stateName = params.get('state') || '';
+    var stateName = (params.get('state') || '').toUpperCase();
+    var concern = params.get('concern') || '';
+    var CONCERNS = ${JSON.stringify(Object.fromEntries(concerns.map((c) => [c.id, c.name])))};
+    var concernName = CONCERNS[concern] || '';
+    if (!concernName) concern = '';
+    var container = document.getElementById('search-results');
+    var status = document.getElementById('search-status');
+    function byConcern(p) { return !concern || (p.c || []).indexOf(concern) >= 0; }
+    function setTitle(t) {
+      document.getElementById('search-title').textContent = t;
+      document.title = t + ' | GoDental.au';
+    }
+    if (window.GoDentalSearch && (concern || stateName)) GoDentalSearch.set({ concern: concern, state: stateName });
 
-    if (!q) {
-      document.getElementById('search-results').innerHTML =
+    if (!q && !concern && !stateName) {
+      container.innerHTML =
         '<div class="no-results-msg"><i class="fa-solid fa-magnifying-glass"></i>'
         + '<h2>Search for a suburb or postcode</h2>'
         + '<p>Use the search bar above to find dental practices near you.</p></div>';
-      document.getElementById('search-status').textContent = '';
+      status.textContent = '';
+      return;
+    }
+
+    if (!q) {
+      // Treatment and/or state, no location: list every match, featured first
+      fetch('/search-data.json').then(function(r){ return r.json(); }).then(function(practices){
+        var list = practices.filter(function(p){ return byConcern(p) && (!stateName || p.stateAbbr === stateName); })
+          .sort(function(a, b){ return (b.featured ? 1 : 0) - (a.featured ? 1 : 0) || a.name.localeCompare(b.name); });
+        setTitle((concernName ? concernName + ' dentists' : 'Dentists') + (stateName ? ' in ' + stateName : ' in Australia'));
+        status.textContent = list.length + ' practice' + (list.length !== 1 ? 's' : '') + '. Add a suburb or postcode above to sort by distance.';
+        container.innerHTML = list.length
+          ? '<div class="practice-list">' + list.map(renderCard).join('') + '</div>'
+          : '<div class="no-results-msg"><i class="fa-solid fa-tooth"></i><h2>No matches yet</h2><p>No listed practice in ' + esc(stateName) + ' offers that treatment yet. Try another state.</p></div>';
+      });
       return;
     }
 
     // Pre-fill the search input
     input.value = suburbName ? suburbName + ' ' + q : q;
 
-    // Update title
-    if (suburbName) {
-      document.getElementById('search-title').textContent = 'Dentists near ' + suburbName + ', ' + stateName;
-      document.title = 'Dentists near ' + suburbName + ', ' + stateName + ' — GoDental.au';
-    }
-
     // Fetch search data
     Promise.all([
       fetch('/search-data.json').then(function(r){ return r.json(); }),
       fetch('/suburbs.json').then(function(r){ return r.json(); })
     ]).then(function(results) {
-      var practices = results[0];
+      var practices = results[0].filter(byConcern);
       var suburbs = results[1];
       suburbsData = suburbs; // cache for autocomplete
 
-      // Find the search location coordinates
+      // Find the search location: a postcode, or a suburb name typed in full
       var searchLoc = null;
+      var isPostcode = /^\\d{4}$/.test(q);
       for (var i = 0; i < suburbs.length; i++) {
-        if (suburbs[i].postcode === q) {
-          // If suburb name matches too, prefer that one
-          if (suburbName && suburbs[i].suburb.toLowerCase() === suburbName.toLowerCase()) {
-            searchLoc = suburbs[i];
-            break;
-          }
-          if (!searchLoc) searchLoc = suburbs[i];
-        }
+        var sb = suburbs[i];
+        var hit = isPostcode ? sb.postcode === q : sb.suburb.toLowerCase() === q.toLowerCase();
+        if (!hit) continue;
+        if (stateName && sb.state === stateName) { searchLoc = sb; break; }
+        if (suburbName && sb.suburb.toLowerCase() === suburbName.toLowerCase()) { searchLoc = sb; break; }
+        if (!searchLoc) searchLoc = sb;
+      }
+      if (searchLoc) {
+        suburbName = searchLoc.suburb;
+        setTitle((concernName ? concernName + ' dentists' : 'Dentists') + ' near ' + searchLoc.suburb + ', ' + searchLoc.state);
+        input.value = searchLoc.suburb + ' ' + searchLoc.postcode;
       }
 
       if (!searchLoc) {
-        document.getElementById('search-results').innerHTML =
+        container.innerHTML =
           '<div class="no-results-msg"><i class="fa-solid fa-map-marker-alt"></i>'
           + '<h2>Location not found</h2>'
-          + '<p>We couldn\\u2019t find a location for postcode "' + esc(q) + '". Please try another search.</p></div>';
-        document.getElementById('search-status').textContent = '';
+          + '<p>We couldn\\u2019t find "' + esc(q) + '". Try a four-digit postcode, or pick a suburb from the list as you type.</p></div>';
+        status.textContent = '';
         return;
       }
 
@@ -4691,9 +5136,6 @@ function buildSearchPage() {
 
       // Filter within 25km
       var nearby = withDist.filter(function(p){ return p.distance <= 25; });
-
-      var container = document.getElementById('search-results');
-      var status = document.getElementById('search-status');
 
       if (nearby.length > 0) {
         status.textContent = 'Showing ' + nearby.length + ' practice' + (nearby.length !== 1 ? 's' : '') + ' within 25 km of ' + (suburbName || q);

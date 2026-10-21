@@ -5,41 +5,101 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dentists in Northern Territory — GoDental.au</title>
   <meta name="description" content="Find trusted dental practices in Northern Territory. Browse 9 dentists with addresses, phone numbers, and services across NT.">
+  <meta name="theme-color" content="#F5F8F8">
   <link rel="icon" href="/favicon.ico" sizes="32x32">
   <link rel="icon" href="/images/favicon-192.png" type="image/png" sizes="192x192">
   <link rel="apple-touch-icon" href="/images/apple-touch-icon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700&family=Geist:wght@400;500;600&display=swap">
   <link rel="stylesheet" href="/styles.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <script>
+  (function(){
+    // "Your search" pill: the visitor's chosen treatment and state, carried across pages.
+    var names = {"checkups":"Check-ups","cosmetic":"Whitening","straighten":"Straightening","rootcanal":"Root canal","wisdom":"Wisdom teeth","missing":"Implants","emergency":"Emergency","kids":"Kids"};
+    function paint(sel){
+      var pill = document.querySelector('[data-your-search]');
+      if (!pill) return;
+      sel = sel || window.GoDentalSearch.get();
+      var parts = [];
+      if (sel.concern && names[sel.concern]) parts.push(names[sel.concern]);
+      if (sel.state) parts.push(sel.state);
+      if (!parts.length) { pill.hidden = true; return; }
+      var qs = new URLSearchParams();
+      if (sel.concern) qs.set('concern', sel.concern);
+      if (sel.state) qs.set('state', sel.state);
+      pill.href = '/search/?' + qs.toString();
+      pill.querySelector('[data-your-search-value]').textContent = parts.join(' \u00b7 ');
+      pill.hidden = false;
+    }
+    window.GoDentalSearch = {
+      paint: function(){ paint(); },
+      get: function(){ try { return JSON.parse(localStorage.getItem('gd-search') || '{}'); } catch (e) { return {}; } },
+      set: function(patch){
+        var sel = this.get();
+        for (var k in patch) { if (patch[k]) sel[k] = patch[k]; else delete sel[k]; }
+        try { localStorage.setItem('gd-search', JSON.stringify(sel)); } catch (e) {}
+        paint(sel);
+        document.dispatchEvent(new CustomEvent('gd:search', { detail: sel }));
+        return sel;
+      }
+    };
+  })();
+  </script>
 </head>
 <body class="page-state">
+  <a class="skip-link" href="#main">Skip to content</a>
   <header class="site-header">
-    <div class="container header-inner">
-      <a href="/" class="site-logo"><img src="/images/logo.png" alt="GoDental.au" height="36"></a>
-      <nav class="site-nav">
-        <a href="/vic/">VIC</a>
-              <a href="/nsw/">NSW</a>
-              <a href="/qld/">QLD</a>
-              <a href="/sa/">SA</a>
-              <a href="/wa/">WA</a>
-              <a href="/tas/">TAS</a>
-              <a href="/nt/">NT</a>
-              <a href="/act/">ACT</a>
-              <span class="nav-divider"></span>
-              <a href="/about/">About</a>
-              <a href="/submit-listing/" class="nav-cta"><i class="fa-solid fa-tooth"></i> List Your Practice</a>
+    <div class="wrap header-inner">
+      <a href="/" class="site-logo"><img src="/images/logo.png" alt="GoDental.au" width="979" height="233"></a>
+      <nav class="site-nav" id="site-nav" aria-label="Main">
+        <div class="site-nav__states">
+          <a href="/vic/">VIC</a>
+          <a href="/nsw/">NSW</a>
+          <a href="/qld/">QLD</a>
+          <a href="/sa/">SA</a>
+          <a href="/wa/">WA</a>
+          <a href="/tas/">TAS</a>
+          <a href="/nt/" aria-current="page">NT</a>
+          <a href="/act/">ACT</a>
+        </div>
+        <a href="/about/" class="site-nav__link">About</a>
+        <a href="/submit-listing/" class="btn btn--quiet site-nav__cta">List your practice</a>
       </nav>
-      <button class="nav-toggle" aria-label="Toggle navigation">&#9776;</button>
+      <a class="your-search" href="/search/" data-your-search hidden>
+        <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+        <span class="your-search__label">Your search</span>
+        <span class="your-search__value" data-your-search-value></span>
+      </a>
+      <button class="nav-toggle" aria-label="Menu" aria-expanded="false" aria-controls="site-nav"><i class="fa-solid fa-bars" aria-hidden="true"></i></button>
     </div>
   </header>
+  <div id="main">
   
   
     <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do I find a dentist in Darwin?","acceptedAnswer":{"@type":"Answer","text":"Browse the NT listings above to find dental practices in Darwin, Palmerston, and surrounding suburbs. Each listing includes the practice address and phone number for easy contact and appointment booking."}},{"@type":"Question","name":"Are there dental services in Alice Springs?","acceptedAnswer":{"@type":"Answer","text":"Yes — Alice Springs has several dental practices offering general and specialist services. The NT listings above include Alice Springs-based practices. Some also provide services to patients travelling from remote communities."}},{"@type":"Question","name":"What emergency dental options are available in the NT?","acceptedAnswer":{"@type":"Answer","text":"Several Darwin dental practices offer emergency appointments for dental pain and trauma. If you need urgent after-hours care, the Royal Darwin Hospital emergency department can assist with serious dental emergencies. For routine emergencies, call a listed practice to check same-day availability."}},{"@type":"Question","name":"Do NT dentists accept health fund cards?","acceptedAnswer":{"@type":"Answer","text":"Most Northern Territory dental practices accept all major health funds and offer on-the-spot HICAPS claiming. Some also accept government dental vouchers and the Child Dental Benefits Schedule. Contact the practice directly to confirm your fund is accepted."}}]}</script>
-  <main class="container">
-    <nav class="breadcrumbs" aria-label="Breadcrumb">
-      <a href="/">Home</a> &rsaquo; <span>Northern Territory</span>
-    </nav>
-    <h1>Dentists in Northern Territory</h1>
-    <p class="state-intro">Browse 9 dental practices in Northern Territory.</p>
+  <section class="page-band">
+    <div class="wrap">
+      <nav class="breadcrumbs" aria-label="Breadcrumb">
+        <a href="/">Home</a> <span aria-hidden="true">/</span> <span>Northern Territory</span>
+      </nav>
+      <h1 class="display page-band__title">Dentists in Northern Territory</h1>
+      <p class="page-band__sub"><span class="sc-nums">9</span> listed practices. Tap a number to call.</p>
+      <div class="concern-filter" role="group" aria-label="Filter by treatment">
+        <button type="button" class="chip-btn" data-filter="" aria-pressed="true">All</button>
+        <button type="button" class="chip-btn" data-filter="checkups" aria-pressed="false">Check-ups</button>
+        <button type="button" class="chip-btn" data-filter="cosmetic" aria-pressed="false">Whitening</button>
+        <button type="button" class="chip-btn" data-filter="straighten" aria-pressed="false">Straightening</button>
+        <button type="button" class="chip-btn" data-filter="rootcanal" aria-pressed="false">Root canal</button>
+        <button type="button" class="chip-btn" data-filter="wisdom" aria-pressed="false">Wisdom teeth</button>
+        <button type="button" class="chip-btn" data-filter="missing" aria-pressed="false">Implants</button>
+        <button type="button" class="chip-btn" data-filter="emergency" aria-pressed="false">Emergency</button>
+        <button type="button" class="chip-btn" data-filter="kids" aria-pressed="false">Kids</button>
+      </div>
+    </div>
+  </section>
+  <main class="wrap state-main">
     
     <section class="state-content-above">
       <h2>Your Guide to Dentists in the Northern Territory</h2>
@@ -48,7 +108,7 @@
     </section>
     <div class="practice-list">
       
-        <div class="practice-card" data-index="0">
+        <div class="practice-card" data-index="0" data-concerns="checkups cosmetic rootcanal missing emergency kids">
           <a href="/nt/national-dental-care-darwin/" class="practice-card-thumb">
             <img src="/images/screenshots/nt/national-dental-care-darwin.jpg" alt="National Dental Care Darwin website" class="practice-img-sm" loading="lazy">
           </a>
@@ -62,7 +122,7 @@
           </div>
         </div>
 
-        <div class="practice-card" data-index="1">
+        <div class="practice-card" data-index="1" data-concerns="checkups cosmetic rootcanal missing emergency kids">
           <a href="/nt/smith-street-dental/" class="practice-card-thumb">
             <img src="/images/screenshots/nt/smith-street-dental.jpg" alt="Smith Street Dental website" class="practice-img-sm" loading="lazy">
           </a>
@@ -76,7 +136,7 @@
           </div>
         </div>
 
-        <div class="practice-card" data-index="2">
+        <div class="practice-card" data-index="2" data-concerns="checkups cosmetic missing emergency kids">
           <a href="/nt/acacia-family-dental-clinic/" class="practice-card-thumb">
             <img src="/images/screenshots/nt/acacia-family-dental-clinic.jpg" alt="Acacia Family Dental Clinic website" class="practice-img-sm" loading="lazy">
           </a>
@@ -90,7 +150,7 @@
           </div>
         </div>
 
-        <div class="practice-card" data-index="3">
+        <div class="practice-card" data-index="3" data-concerns="checkups wisdom missing emergency kids">
           <a href="/nt/nt-oral-health-services-darwin/" class="practice-card-thumb">
             <img src="/images/screenshots/nt/nt-oral-health-services-darwin.jpg" alt="NT Oral Health Services Darwin website" class="practice-img-sm" loading="lazy">
           </a>
@@ -104,7 +164,7 @@
           </div>
         </div>
 
-        <div class="practice-card" data-index="4">
+        <div class="practice-card" data-index="4" data-concerns="checkups wisdom missing emergency kids">
           <a href="/nt/nt-oral-health-services-alice-springs/" class="practice-card-thumb">
             <img src="/images/screenshots/nt/nt-oral-health-services-alice-springs.jpg" alt="NT Oral Health Services Alice Springs website" class="practice-img-sm" loading="lazy">
           </a>
@@ -118,7 +178,7 @@
           </div>
         </div>
 
-        <div class="practice-card" data-index="5">
+        <div class="practice-card" data-index="5" data-concerns="checkups cosmetic rootcanal missing emergency kids">
           <a href="/nt/palmerston-dental-surgery/" class="practice-card-thumb">
             <img src="/images/screenshots/nt/palmerston-dental-surgery.jpg" alt="Palmerston Dental Surgery website" class="practice-img-sm" loading="lazy">
           </a>
@@ -132,7 +192,7 @@
           </div>
         </div>
 
-        <div class="practice-card" data-index="6">
+        <div class="practice-card" data-index="6" data-concerns="checkups cosmetic straighten rootcanal missing emergency">
           <a href="/nt/your-smile-dental/" class="practice-card-thumb">
             <img src="/images/screenshots/nt/your-smile-dental.jpg" alt="Your Smile Dental website" class="practice-img-sm" loading="lazy">
           </a>
@@ -146,7 +206,7 @@
           </div>
         </div>
 
-        <div class="practice-card" data-index="7">
+        <div class="practice-card" data-index="7" data-concerns="checkups cosmetic rootcanal missing emergency kids">
           <a href="/nt/your-dentist-darwin/" class="practice-card-thumb">
             <img src="/images/screenshots/nt/your-dentist-darwin.jpg" alt="Your Dentist Darwin website" class="practice-img-sm" loading="lazy">
           </a>
@@ -160,7 +220,7 @@
           </div>
         </div>
 
-        <div class="practice-card" data-index="8">
+        <div class="practice-card" data-index="8" data-concerns="checkups cosmetic rootcanal missing emergency">
           <a href="/nt/trower-dental/" class="practice-card-thumb">
             <img src="/images/screenshots/nt/trower-dental.jpg" alt="Trower Dental website" class="practice-img-sm" loading="lazy">
           </a>
@@ -231,11 +291,38 @@
     <div class="state-cta">
       <h2>Are you a dental practice in Northern Territory?</h2>
       <p>Get your practice listed on GoDental.au and reach patients searching for dentists in NT.</p>
-      <a href="/submit-listing/" class="btn">Submit Your Practice</a>
+      <a href="/submit-listing/" class="btn btn--primary">List your practice</a>
     </div>
   </main>
   <script>
   (function(){
+    // Treatment filter: shows every matching practice, and remembers the pick
+    var chips=document.querySelectorAll('.chip-btn');
+    var allCards=document.querySelectorAll('.practice-card');
+    var moreWrap=document.querySelector('.see-more-wrap');
+    var sub=document.querySelector('.page-band__sub');
+    var subDefault=sub.innerHTML;
+    function filter(id){
+      chips.forEach(function(c){ c.setAttribute('aria-pressed', String(c.dataset.filter===id)); });
+      var n=0;
+      allCards.forEach(function(card){
+        var match=!id || (' '+card.dataset.concerns+' ').indexOf(' '+id+' ')>=0;
+        card.classList.toggle('practice-filtered', !match);
+        if(id && match){ card.classList.remove('practice-hidden'); }
+        if(match) n++;
+      });
+      if(moreWrap) moreWrap.style.display = id ? 'none' : '';
+      sub.innerHTML = id ? '<span class="sc-nums">'+n+'</span> listed practices offer '+document.querySelector('.chip-btn[data-filter="'+id+'"]').textContent.toLowerCase()+'.' : subDefault;
+    }
+    chips.forEach(function(c){
+      c.addEventListener('click', function(){
+        filter(c.dataset.filter);
+        if(window.GoDentalSearch) GoDentalSearch.set({ concern: c.dataset.filter, state: 'NT' });
+      });
+    });
+    var saved=window.GoDentalSearch ? GoDentalSearch.get() : {};
+    if(saved.concern && document.querySelector('.chip-btn[data-filter="'+saved.concern+'"]')) filter(saved.concern);
+
     var btn=document.getElementById('see-more-btn');
     if(btn){
       var cards=document.querySelectorAll('.practice-card');
@@ -260,15 +347,49 @@
     });
   })();
   </script>
+  </div>
   <footer class="site-footer">
-    <div class="container">
-      <p>&copy; 2026 GoDental.au. All rights reserved.</p>
+    <div class="wrap footer-inner">
+      <div class="footer-brand">
+        <img src="/images/logo.png" alt="GoDental.au" width="979" height="233" loading="lazy">
+        <p>Australia&rsquo;s dental directory. Every listing is submitted by the practice and checked by hand before it goes live.</p>
+      </div>
+      <nav class="footer-col" aria-label="Find a dentist by state">
+        <h2>Find a dentist</h2>
+        <ul>
+          <li><a href="/vic/">Victoria</a></li>
+          <li><a href="/nsw/">New South Wales</a></li>
+          <li><a href="/qld/">Queensland</a></li>
+          <li><a href="/sa/">South Australia</a></li>
+          <li><a href="/wa/">Western Australia</a></li>
+          <li><a href="/tas/">Tasmania</a></li>
+          <li><a href="/nt/">Northern Territory</a></li>
+          <li><a href="/act/">Australian Capital Territory</a></li>
+        </ul>
+      </nav>
+      <nav class="footer-col" aria-label="GoDental">
+        <h2>GoDental</h2>
+        <ul>
+          <li><a href="/about/">About</a></li>
+          <li><a href="/submit-listing/">List your practice</a></li>
+          <li><a href="mailto:hello@godental.au">hello@godental.au</a></li>
+        </ul>
+      </nav>
+    </div>
+    <div class="wrap footer-base">
+      <p>&copy; 2026 GoDental.au. Free for patients. No account needed.</p>
     </div>
   </footer>
   <script>
-    document.querySelector('.nav-toggle').addEventListener('click', function() {
-      document.querySelector('.site-nav').classList.toggle('open');
+  (function(){
+    var toggle = document.querySelector('.nav-toggle');
+    var nav = document.getElementById('site-nav');
+    toggle.addEventListener('click', function(){
+      var open = nav.classList.toggle('open');
+      toggle.setAttribute('aria-expanded', String(open));
     });
+    if (window.GoDentalSearch) GoDentalSearch.paint();
+  })();
   </script>
 </body>
 </html>

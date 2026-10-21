@@ -3,294 +3,603 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>GoDental.au — Find a Dentist Near You</title>
-  <meta name="description" content="Browse trusted dental practices across Australia. Find dentists in VIC, NSW, QLD, SA, WA, TAS, NT, and ACT with addresses, phone numbers, and services.">
+  <title>GoDental.au: find a dentist near you</title>
+  <meta name="description" content="Find a dentist in Australia. Search 208 hand-checked dental practices by suburb, postcode or treatment, in every state and territory.">
+  <meta name="theme-color" content="#F5F8F8">
   <link rel="icon" href="/favicon.ico" sizes="32x32">
   <link rel="icon" href="/images/favicon-192.png" type="image/png" sizes="192x192">
   <link rel="apple-touch-icon" href="/images/apple-touch-icon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700&family=Geist:wght@400;500;600&display=swap">
+  <link rel="stylesheet" href="/scrollcraft.css">
+  <script src="/scrollcraft.js" defer></script>
   <link rel="stylesheet" href="/styles.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <script>
+  (function(){
+    // "Your search" pill: the visitor's chosen treatment and state, carried across pages.
+    var names = {"checkups":"Check-ups","cosmetic":"Whitening","straighten":"Straightening","rootcanal":"Root canal","wisdom":"Wisdom teeth","missing":"Implants","emergency":"Emergency","kids":"Kids"};
+    function paint(sel){
+      var pill = document.querySelector('[data-your-search]');
+      if (!pill) return;
+      sel = sel || window.GoDentalSearch.get();
+      var parts = [];
+      if (sel.concern && names[sel.concern]) parts.push(names[sel.concern]);
+      if (sel.state) parts.push(sel.state);
+      if (!parts.length) { pill.hidden = true; return; }
+      var qs = new URLSearchParams();
+      if (sel.concern) qs.set('concern', sel.concern);
+      if (sel.state) qs.set('state', sel.state);
+      pill.href = '/search/?' + qs.toString();
+      pill.querySelector('[data-your-search-value]').textContent = parts.join(' \u00b7 ');
+      pill.hidden = false;
+    }
+    window.GoDentalSearch = {
+      paint: function(){ paint(); },
+      get: function(){ try { return JSON.parse(localStorage.getItem('gd-search') || '{}'); } catch (e) { return {}; } },
+      set: function(patch){
+        var sel = this.get();
+        for (var k in patch) { if (patch[k]) sel[k] = patch[k]; else delete sel[k]; }
+        try { localStorage.setItem('gd-search', JSON.stringify(sel)); } catch (e) {}
+        paint(sel);
+        document.dispatchEvent(new CustomEvent('gd:search', { detail: sel }));
+        return sel;
+      }
+    };
+  })();
+  </script>
 </head>
 <body class="page-home">
+  <a class="skip-link" href="#main">Skip to content</a>
   <header class="site-header">
-    <div class="container header-inner">
-      <a href="/" class="site-logo"><img src="/images/logo.png" alt="GoDental.au" height="36"></a>
-      <nav class="site-nav">
-        <a href="/vic/">VIC</a>
-              <a href="/nsw/">NSW</a>
-              <a href="/qld/">QLD</a>
-              <a href="/sa/">SA</a>
-              <a href="/wa/">WA</a>
-              <a href="/tas/">TAS</a>
-              <a href="/nt/">NT</a>
-              <a href="/act/">ACT</a>
-              <span class="nav-divider"></span>
-              <a href="/about/">About</a>
-              <a href="/submit-listing/" class="nav-cta"><i class="fa-solid fa-tooth"></i> List Your Practice</a>
+    <div class="wrap header-inner">
+      <a href="/" class="site-logo"><img src="/images/logo.png" alt="GoDental.au" width="979" height="233"></a>
+      <nav class="site-nav" id="site-nav" aria-label="Main">
+        <div class="site-nav__states">
+          <a href="/vic/">VIC</a>
+          <a href="/nsw/">NSW</a>
+          <a href="/qld/">QLD</a>
+          <a href="/sa/">SA</a>
+          <a href="/wa/">WA</a>
+          <a href="/tas/">TAS</a>
+          <a href="/nt/">NT</a>
+          <a href="/act/">ACT</a>
+        </div>
+        <a href="/about/" class="site-nav__link">About</a>
+        <a href="/submit-listing/" class="btn btn--quiet site-nav__cta">List your practice</a>
       </nav>
-      <button class="nav-toggle" aria-label="Toggle navigation">&#9776;</button>
+      <a class="your-search" href="/search/" data-your-search hidden>
+        <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+        <span class="your-search__label">Your search</span>
+        <span class="your-search__value" data-your-search-value></span>
+      </a>
+      <button class="nav-toggle" aria-label="Menu" aria-expanded="false" aria-controls="site-nav"><i class="fa-solid fa-bars" aria-hidden="true"></i></button>
     </div>
   </header>
+  <div id="main">
   
-  <section class="hero">
-    <div class="hero-bg">
-      <img src="/images/hero-dental-desk.png" alt="" width="1400" height="420">
-    </div>
-    <div class="container hero-content">
-      <h1>Find Your Perfect Dentist</h1>
-      <p class="hero-sub">Australia&rsquo;s trusted dental directory &mdash; browse 208 verified practices across every state and territory.</p>
-      <div class="search-wrap">
-        <div class="search-bar">
-          <i class="fa-solid fa-magnifying-glass search-icon"></i>
-          <input type="text" id="search-input" class="search-input"
-                 placeholder="Search by suburb or postcode..."
-                 autocomplete="off" aria-label="Search by suburb or postcode">
-          <ul id="search-autocomplete" class="search-autocomplete" role="listbox"></ul>
-        </div>
+  <main class="home" id="home">
+
+  <section class="hero" data-sc-act="pin" data-sc-span="1.7" aria-labelledby="hero-title">
+    <div class="hero-stage" data-sc-stage>
+      <div class="hero-plane hero-plane--room" aria-hidden="true">
+        <picture>
+          <img src="/images/home/hero-room.jpg" alt="" width="2048" height="1152" fetchpriority="high">
+        </picture>
+        <img class="hero-desk" src="/images/home/hero-desk.png" alt="" width="2048" height="1152">
       </div>
-      <div class="hero-stats">
-        <div class="hero-stat"><i class="fa-solid fa-tooth hero-stat-icon"></i><span class="hero-stat-number">208</span><span class="hero-stat-label">Practices</span></div>
-        <div class="hero-stat"><i class="fa-solid fa-map-location-dot hero-stat-icon"></i><span class="hero-stat-number">8</span><span class="hero-stat-label">States &amp; Territories</span></div>
-        <div class="hero-stat"><i class="fa-solid fa-magnifying-glass hero-stat-icon"></i><span class="hero-stat-number">100%</span><span class="hero-stat-label">Free to Search</span></div>
+      <div class="hero-veil" aria-hidden="true"></div>
+      <div class="hero-copy">
+        <h1 id="hero-title" class="display">Find a dentist you&rsquo;ll actually go back to.</h1>
+        <p class="hero-sub">208 Australian practices, each checked by hand. Search by suburb, or start with the tooth that hurts.</p>
+        <form class="hero-search" action="/search/" method="get" role="search" autocomplete="off">
+          <label for="search-input" class="visually-hidden">Suburb or postcode</label>
+          <i class="fa-solid fa-location-dot" aria-hidden="true"></i>
+          <input type="text" id="search-input" name="q" class="hero-search__input" placeholder="Suburb or postcode" autocomplete="off">
+          <button type="submit" class="btn btn--primary">Find a dentist</button>
+          <ul id="search-autocomplete" class="search-autocomplete" role="listbox"></ul>
+        </form>
+      </div>
+      <div class="hero-door" aria-hidden="true">
+        <div class="hero-door__glass"></div>
+        <div class="hero-door__handle"></div>
       </div>
     </div>
   </section>
-  <main class="container">
-    <h2 class="section-heading">Browse by State</h2>
-    <section class="state-grid">
-      
-        <a href="/vic/" class="state-card">
-          <h2>Victoria</h2>
-          <span class="state-abbr">VIC</span>
-          <p>52 dental practices</p>
-        </a>
 
-        <a href="/nsw/" class="state-card">
-          <h2>New South Wales</h2>
-          <span class="state-abbr">NSW</span>
-          <p>89 dental practices</p>
-        </a>
+  <section class="hush" aria-label="How GoDental works">
+    <p class="hush__line" data-sc-in>Most directories ask where you live first. <span>We start with what&rsquo;s bothering you.</span></p>
+  </section>
 
-        <a href="/qld/" class="state-card">
-          <h2>Queensland</h2>
-          <span class="state-abbr">QLD</span>
-          <p>14 dental practices</p>
-        </a>
+  <section class="chart-act" id="chart" data-sc-act="pin" data-sc-span="2.6" aria-labelledby="chart-title">
+    <div class="chart-stage" data-sc-stage>
+      <div class="wrap chart-layout">
+        <div class="chart-intro">
+          <h2 id="chart-title" class="h2">Tap the tooth that&rsquo;s bothering you.</h2>
+          <p class="lede">Each part of the smile is a kind of treatment. Pick one and we&rsquo;ll show you how many listed practices offer it, and where.</p>
+        </div>
+        <div class="chart-controls">
+          <ul class="concern-list" aria-label="Treatments">
+            <li><button type="button" class="concern-btn" data-concern="checkups" aria-pressed="false">
+              <span class="concern-btn__name">Check-ups and fillings</span>
+              <span class="concern-btn__count sc-nums">200</span>
+            </button></li>
+            <li><button type="button" class="concern-btn" data-concern="cosmetic" aria-pressed="false">
+              <span class="concern-btn__name">Whitening and veneers</span>
+              <span class="concern-btn__count sc-nums">189</span>
+            </button></li>
+            <li><button type="button" class="concern-btn" data-concern="straighten" aria-pressed="false">
+              <span class="concern-btn__name">Straightening</span>
+              <span class="concern-btn__count sc-nums">62</span>
+            </button></li>
+            <li><button type="button" class="concern-btn" data-concern="rootcanal" aria-pressed="false">
+              <span class="concern-btn__name">Root canal</span>
+              <span class="concern-btn__count sc-nums">158</span>
+            </button></li>
+            <li><button type="button" class="concern-btn" data-concern="wisdom" aria-pressed="false">
+              <span class="concern-btn__name">Wisdom teeth and oral surgery</span>
+              <span class="concern-btn__count sc-nums">26</span>
+            </button></li>
+            <li><button type="button" class="concern-btn" data-concern="missing" aria-pressed="false">
+              <span class="concern-btn__name">Missing or broken teeth</span>
+              <span class="concern-btn__count sc-nums">198</span>
+            </button></li>
+          </ul>
+          <div class="concern-toggles">
+            <button type="button" class="concern-btn concern-btn--toggle" data-concern="emergency" aria-pressed="false">
+              <i class="fa-solid fa-bolt" aria-hidden="true"></i>
+              <span class="concern-btn__name">It hurts right now</span>
+            </button>
+            <button type="button" class="concern-btn concern-btn--toggle" data-concern="kids" aria-pressed="false">
+              <i class="fa-solid fa-child-reaching" aria-hidden="true"></i>
+              <span class="concern-btn__name">For kids</span>
+            </button>
+          </div>
+        </div>
+        <div class="chart-figure">
+          <svg class="chart-svg" viewBox="0 0 530 440" role="img" aria-labelledby="chart-svg-title">
+          <title id="chart-svg-title">Dental chart: upper and lower teeth grouped by treatment</title>
+          <g class="chart-gums"><path class="chart-gum" d="M38.2 194.6 L38 182.8 L38.6 171.1 L40 159.4 L42.2 147.9 L45.1 136.5 L48.8 125.4 L53.2 114.5 L58.3 104 L64.1 93.8 L70.6 84.1 L77.7 74.8 L85.4 66 L93.7 57.8 L102.5 50.2 L111.8 43.1 L121.6 36.8 L131.7 31.1 L142.2 26.1 L153 21.8 L164.1 18.3 L175.4 15.6 L186.9 13.6 L198.4 12.4 L210 12 L221.6 12.4 L233.1 13.6 L244.6 15.6 L255.9 18.3 L267 21.8 L277.8 26.1 L288.3 31.1 L298.4 36.8 L308.2 43.1 L317.5 50.2 L326.3 57.8 L334.6 66 L342.3 74.8 L349.4 84.1 L355.9 93.8 L361.7 104 L366.8 114.5 L371.2 125.4 L374.9 136.5 L377.8 147.9 L380 159.4 L381.4 171.1 L382 182.8 L381.8 194.6 L333.8 192.2 L334 183.7 L333.5 175.2 L332.5 166.8 L331 158.4 L328.9 150.2 L326.2 142.1 L323.1 134.2 L319.4 126.6 L315.2 119.3 L310.5 112.2 L305.4 105.5 L299.8 99.1 L293.8 93.2 L287.5 87.6 L280.8 82.5 L273.8 77.9 L266.4 73.8 L258.9 70.2 L251.1 67.1 L243.1 64.6 L234.9 62.6 L226.7 61.1 L218.4 60.3 L210 60 L201.6 60.3 L193.3 61.1 L185.1 62.6 L176.9 64.6 L168.9 67.1 L161.1 70.2 L153.6 73.8 L146.2 77.9 L139.2 82.5 L132.5 87.6 L126.2 93.2 L120.2 99.1 L114.6 105.5 L109.5 112.2 L104.8 119.3 L100.6 126.6 L96.9 134.2 L93.8 142.1 L91.1 150.2 L89 158.4 L87.5 166.8 L86.5 175.2 L86 183.7 L86.2 192.2 Z" pathLength="1"/><path class="chart-gum" d="M38.2 245.4 L38 257.2 L38.6 268.9 L40 280.6 L42.2 292.1 L45.1 303.5 L48.8 314.6 L53.2 325.5 L58.3 336 L64.1 346.2 L70.6 355.9 L77.7 365.2 L85.4 374 L93.7 382.2 L102.5 389.8 L111.8 396.9 L121.6 403.2 L131.7 408.9 L142.2 413.9 L153 418.2 L164.1 421.7 L175.4 424.4 L186.9 426.4 L198.4 427.6 L210 428 L221.6 427.6 L233.1 426.4 L244.6 424.4 L255.9 421.7 L267 418.2 L277.8 413.9 L288.3 408.9 L298.4 403.2 L308.2 396.9 L317.5 389.8 L326.3 382.2 L334.6 374 L342.3 365.2 L349.4 355.9 L355.9 346.2 L361.7 336 L366.8 325.5 L371.2 314.6 L374.9 303.5 L377.8 292.1 L380 280.6 L381.4 268.9 L382 257.2 L381.8 245.4 L333.8 247.8 L334 256.3 L333.5 264.8 L332.5 273.2 L331 281.6 L328.9 289.8 L326.2 297.9 L323.1 305.8 L319.4 313.4 L315.2 320.7 L310.5 327.8 L305.4 334.5 L299.8 340.9 L293.8 346.8 L287.5 352.4 L280.8 357.5 L273.8 362.1 L266.4 366.2 L258.9 369.8 L251.1 372.9 L243.1 375.4 L234.9 377.4 L226.7 378.9 L218.4 379.7 L210 380 L201.6 379.7 L193.3 378.9 L185.1 377.4 L176.9 375.4 L168.9 372.9 L161.1 369.8 L153.6 366.2 L146.2 362.1 L139.2 357.5 L132.5 352.4 L126.2 346.8 L120.2 340.9 L114.6 334.5 L109.5 327.8 L104.8 320.7 L100.6 313.4 L96.9 305.8 L93.8 297.9 L91.1 289.8 L89 281.6 L87.5 273.2 L86.5 264.8 L86 256.3 L86.2 247.8 Z" pathLength="1"/></g>
+          <g class="chart-teeth"><rect class="tooth" data-concern="cosmetic" style="--d:0" x="183.2" y="21.7" width="24" height="30" rx="10.1" transform="rotate(-5.8 195.2 36.7)"/><rect class="tooth" data-concern="cosmetic" style="--d:0" x="212.8" y="21.7" width="24" height="30" rx="10.1" transform="rotate(5.8 224.8 36.7)"/><rect class="tooth" data-concern="cosmetic" style="--d:0.1" x="157.7" y="28.3" width="20" height="28" rx="8.4" transform="rotate(-16.8 167.7 42.3)"/><rect class="tooth" data-concern="cosmetic" style="--d:0.1" x="242.3" y="28.3" width="20" height="28" rx="8.4" transform="rotate(16.8 252.3 42.3)"/><rect class="tooth" data-concern="cosmetic" style="--d:0.3" x="130.7" y="38" width="22" height="30" rx="9.2" transform="rotate(-27.8 141.7 53)"/><rect class="tooth" data-concern="cosmetic" style="--d:0.3" x="267.3" y="38" width="22" height="30" rx="9.2" transform="rotate(27.8 278.3 53)"/><rect class="tooth" data-concern="checkups" style="--d:0.4" x="106.1" y="55.4" width="24" height="26" rx="10.1" transform="rotate(-38.8 118.1 68.4)"/><rect class="tooth" data-concern="checkups" style="--d:0.4" x="289.9" y="55.4" width="24" height="26" rx="10.1" transform="rotate(38.8 301.9 68.4)"/><rect class="tooth" data-concern="checkups" style="--d:0.6" x="85.8" y="75.1" width="24" height="26" rx="10.1" transform="rotate(-49.7 97.8 88.1)"/><rect class="tooth" data-concern="checkups" style="--d:0.6" x="310.2" y="75.1" width="24" height="26" rx="10.1" transform="rotate(49.7 322.2 88.1)"/><rect class="tooth" data-concern="rootcanal" style="--d:0.7" x="63.5" y="100.3" width="32" height="30" rx="12.6" transform="rotate(-62.2 79.5 115.3)"/><rect class="tooth" data-concern="rootcanal" style="--d:0.7" x="324.5" y="100.3" width="32" height="30" rx="12.6" transform="rotate(62.2 340.5 115.3)"/><rect class="tooth" data-concern="rootcanal" style="--d:0.9" x="52" y="132.3" width="30" height="30" rx="12.6" transform="rotate(-75.2 67 147.3)"/><rect class="tooth" data-concern="rootcanal" style="--d:0.9" x="338" y="132.3" width="30" height="30" rx="12.6" transform="rotate(75.2 353 147.3)"/><rect class="tooth" data-concern="wisdom" style="--d:1" x="48.6" y="166.4" width="27" height="27" rx="11.3" transform="rotate(-87.7 62.1 179.9)"/><rect class="tooth" data-concern="wisdom" style="--d:1" x="344.4" y="166.4" width="27" height="27" rx="11.3" transform="rotate(87.7 357.9 179.9)"/><rect class="tooth" data-concern="straighten" style="--d:0" x="183.2" y="388.3" width="24" height="30" rx="10.1" transform="rotate(5.8 195.2 403.3)"/><rect class="tooth" data-concern="straighten" style="--d:0" x="212.8" y="388.3" width="24" height="30" rx="10.1" transform="rotate(-5.8 224.8 403.3)"/><rect class="tooth" data-concern="straighten" style="--d:0.1" x="157.7" y="383.7" width="20" height="28" rx="8.4" transform="rotate(16.8 167.7 397.7)"/><rect class="tooth" data-concern="straighten" style="--d:0.1" x="242.3" y="383.7" width="20" height="28" rx="8.4" transform="rotate(-16.8 252.3 397.7)"/><rect class="tooth" data-concern="straighten" style="--d:0.3" x="130.7" y="372" width="22" height="30" rx="9.2" transform="rotate(27.8 141.7 387)"/><rect class="tooth" data-concern="straighten" style="--d:0.3" x="267.3" y="372" width="22" height="30" rx="9.2" transform="rotate(-27.8 278.3 387)"/><rect class="tooth" data-concern="checkups" style="--d:0.4" x="106.1" y="358.6" width="24" height="26" rx="10.1" transform="rotate(38.8 118.1 371.6)"/><rect class="tooth" data-concern="checkups" style="--d:0.4" x="289.9" y="358.6" width="24" height="26" rx="10.1" transform="rotate(-38.8 301.9 371.6)"/><rect class="tooth" data-concern="checkups" style="--d:0.6" x="85.8" y="338.9" width="24" height="26" rx="10.1" transform="rotate(49.7 97.8 351.9)"/><rect class="tooth" data-concern="checkups" style="--d:0.6" x="310.2" y="338.9" width="24" height="26" rx="10.1" transform="rotate(-49.7 322.2 351.9)"/><rect class="tooth" data-concern="missing" style="--d:0.7" x="63.5" y="309.7" width="32" height="30" rx="12.6" transform="rotate(62.2 79.5 324.7)"/><rect class="tooth" data-concern="missing" style="--d:0.7" x="324.5" y="309.7" width="32" height="30" rx="12.6" transform="rotate(-62.2 340.5 324.7)"/><rect class="tooth" data-concern="missing" style="--d:0.9" x="52" y="277.7" width="30" height="30" rx="12.6" transform="rotate(75.2 67 292.7)"/><rect class="tooth" data-concern="missing" style="--d:0.9" x="338" y="277.7" width="30" height="30" rx="12.6" transform="rotate(-75.2 353 292.7)"/><rect class="tooth" data-concern="wisdom" style="--d:1" x="48.6" y="246.6" width="27" height="27" rx="11.3" transform="rotate(87.7 62.1 260.1)"/><rect class="tooth" data-concern="wisdom" style="--d:1" x="344.4" y="246.6" width="27" height="27" rx="11.3" transform="rotate(-87.7 357.9 260.1)"/></g>
+          <g class="chart-labels" aria-hidden="true"><text class="chart-label" data-concern="cosmetic" style="--d:0" x="274" y="1.3">Whitening</text><text class="chart-label" data-concern="checkups" style="--d:0.4" x="353.7" y="48.2">Check-ups</text><text class="chart-label" data-concern="rootcanal" style="--d:0.7" x="400.3" y="118.3">Root canal</text><text class="chart-label" data-concern="wisdom" style="--d:1" x="413.8" y="182.9">Wisdom teeth</text><text class="chart-label" data-concern="straighten" style="--d:0" x="274" y="448.7">Straightening</text><text class="chart-label" data-concern="missing" style="--d:0.7" x="400.3" y="331.7">Implants</text><text class="chart-label" data-concern="wisdom" style="--d:1" x="413.8" y="267.1">Wisdom teeth</text></g>
+        </svg>
+        </div>
+        <div class="chart-panel" aria-live="polite">
+          <p class="chart-panel__kicker" data-panel-kicker>Pick a tooth</p>
+          <p class="chart-panel__count"><span class="sc-nums" data-panel-count>208</span></p>
+          <p class="chart-panel__name" data-panel-name>practices listed across Australia</p>
+          <ol class="chart-bars" data-panel-bars>
+            <li><span class="chart-bars__abbr">VIC</span><span class="chart-bars__track"><span class="chart-bars__fill" data-bar="VIC" style="--v:0.584"></span></span><span class="chart-bars__n sc-nums" data-bar-n="VIC">52</span></li>
+            <li><span class="chart-bars__abbr">NSW</span><span class="chart-bars__track"><span class="chart-bars__fill" data-bar="NSW" style="--v:1.000"></span></span><span class="chart-bars__n sc-nums" data-bar-n="NSW">89</span></li>
+            <li><span class="chart-bars__abbr">QLD</span><span class="chart-bars__track"><span class="chart-bars__fill" data-bar="QLD" style="--v:0.157"></span></span><span class="chart-bars__n sc-nums" data-bar-n="QLD">14</span></li>
+            <li><span class="chart-bars__abbr">SA</span><span class="chart-bars__track"><span class="chart-bars__fill" data-bar="SA" style="--v:0.101"></span></span><span class="chart-bars__n sc-nums" data-bar-n="SA">9</span></li>
+            <li><span class="chart-bars__abbr">WA</span><span class="chart-bars__track"><span class="chart-bars__fill" data-bar="WA" style="--v:0.191"></span></span><span class="chart-bars__n sc-nums" data-bar-n="WA">17</span></li>
+            <li><span class="chart-bars__abbr">TAS</span><span class="chart-bars__track"><span class="chart-bars__fill" data-bar="TAS" style="--v:0.090"></span></span><span class="chart-bars__n sc-nums" data-bar-n="TAS">8</span></li>
+            <li><span class="chart-bars__abbr">NT</span><span class="chart-bars__track"><span class="chart-bars__fill" data-bar="NT" style="--v:0.101"></span></span><span class="chart-bars__n sc-nums" data-bar-n="NT">9</span></li>
+            <li><span class="chart-bars__abbr">ACT</span><span class="chart-bars__track"><span class="chart-bars__fill" data-bar="ACT" style="--v:0.112"></span></span><span class="chart-bars__n sc-nums" data-bar-n="ACT">10</span></li>
+          </ol>
+          <a class="btn btn--primary chart-panel__go" href="/search/" data-panel-go>Find a dentist</a>
+        </div>
+      </div>
+    </div>
+  </section>
 
-        <a href="/sa/" class="state-card">
-          <h2>South Australia</h2>
-          <span class="state-abbr">SA</span>
-          <p>9 dental practices</p>
-        </a>
-
-        <a href="/wa/" class="state-card">
-          <h2>Western Australia</h2>
-          <span class="state-abbr">WA</span>
-          <p>17 dental practices</p>
-        </a>
-
-        <a href="/tas/" class="state-card">
-          <h2>Tasmania</h2>
-          <span class="state-abbr">TAS</span>
-          <p>8 dental practices</p>
-        </a>
-
-        <a href="/nt/" class="state-card">
-          <h2>Northern Territory</h2>
-          <span class="state-abbr">NT</span>
-          <p>9 dental practices</p>
-        </a>
-
-        <a href="/act/" class="state-card">
-          <h2>Australian Capital Territory</h2>
-          <span class="state-abbr">ACT</span>
-          <p>10 dental practices</p>
-        </a>
-    </section>
-    <section class="new-listings" id="new-listings">
-      <h2 class="section-heading">New Listings</h2>
-      <p class="new-listings-sub">Dental practices added to GoDental.au in the last 30 days.</p>
-      <div class="new-listings-grid">
+  <section class="states" data-sc-act="flow" aria-labelledby="states-title">
+    <div class="wrap">
+      <div class="states-head" data-sc-in>
+        <h2 id="states-title" class="h2">Where are you?</h2>
+        <p class="lede" data-states-lede>Every state and territory, with the number of listed practices in each.</p>
+      </div>
+      <div class="states-wipe" data-sc-reveal="up" data-sc-reveal-at="0 0.35">
+        <ul class="state-plates">
+        <li class="state-plate">
+          <a href="/vic/" class="state-plate__link" data-state="VIC">
+            <span class="state-plate__abbr">VIC</span>
+            <span class="state-plate__name">Victoria</span>
+            <span class="state-plate__count"><span class="sc-nums" data-sc-count="0 52">52</span> practices</span>
+            <span class="state-plate__match" data-state-match="VIC" hidden></span>
+          </a>
+        </li>
+        <li class="state-plate">
+          <a href="/nsw/" class="state-plate__link" data-state="NSW">
+            <span class="state-plate__abbr">NSW</span>
+            <span class="state-plate__name">New South Wales</span>
+            <span class="state-plate__count"><span class="sc-nums" data-sc-count="0 89">89</span> practices</span>
+            <span class="state-plate__match" data-state-match="NSW" hidden></span>
+          </a>
+        </li>
+        <li class="state-plate">
+          <a href="/qld/" class="state-plate__link" data-state="QLD">
+            <span class="state-plate__abbr">QLD</span>
+            <span class="state-plate__name">Queensland</span>
+            <span class="state-plate__count"><span class="sc-nums" data-sc-count="0 14">14</span> practices</span>
+            <span class="state-plate__match" data-state-match="QLD" hidden></span>
+          </a>
+        </li>
+        <li class="state-plate">
+          <a href="/sa/" class="state-plate__link" data-state="SA">
+            <span class="state-plate__abbr">SA</span>
+            <span class="state-plate__name">South Australia</span>
+            <span class="state-plate__count"><span class="sc-nums" data-sc-count="0 9">9</span> practices</span>
+            <span class="state-plate__match" data-state-match="SA" hidden></span>
+          </a>
+        </li>
+        <li class="state-plate">
+          <a href="/wa/" class="state-plate__link" data-state="WA">
+            <span class="state-plate__abbr">WA</span>
+            <span class="state-plate__name">Western Australia</span>
+            <span class="state-plate__count"><span class="sc-nums" data-sc-count="0 17">17</span> practices</span>
+            <span class="state-plate__match" data-state-match="WA" hidden></span>
+          </a>
+        </li>
+        <li class="state-plate">
+          <a href="/tas/" class="state-plate__link" data-state="TAS">
+            <span class="state-plate__abbr">TAS</span>
+            <span class="state-plate__name">Tasmania</span>
+            <span class="state-plate__count"><span class="sc-nums" data-sc-count="0 8">8</span> practices</span>
+            <span class="state-plate__match" data-state-match="TAS" hidden></span>
+          </a>
+        </li>
+        <li class="state-plate">
+          <a href="/nt/" class="state-plate__link" data-state="NT">
+            <span class="state-plate__abbr">NT</span>
+            <span class="state-plate__name">Northern Territory</span>
+            <span class="state-plate__count"><span class="sc-nums" data-sc-count="0 9">9</span> practices</span>
+            <span class="state-plate__match" data-state-match="NT" hidden></span>
+          </a>
+        </li>
+        <li class="state-plate">
+          <a href="/act/" class="state-plate__link" data-state="ACT">
+            <span class="state-plate__abbr">ACT</span>
+            <span class="state-plate__name">Australian Capital Territory</span>
+            <span class="state-plate__count"><span class="sc-nums" data-sc-count="0 10">10</span> practices</span>
+            <span class="state-plate__match" data-state-match="ACT" hidden></span>
+          </a>
+        </li>
+        </ul>
+      </div>
+    </div>
+  </section>
+  
+  <section class="new-listings" id="new-listings" data-sc-act="pan" data-sc-span="3.75" aria-labelledby="new-listings-title">
+    <div class="new-stage" data-sc-stage>
+      <div class="new-rail" data-sc-pan="0.04">
+        <div class="new-rail__intro">
+          <h2 id="new-listings-title" class="h2">New on GoDental</h2>
+          <p><span class="sc-nums">23</span> practices joined in the last 30 days. Each one was submitted by the practice and checked by hand.</p>
+        </div>
         
-        <div class="new-state-group">
-          <h3><a href="/vic/">Victoria</a> <span class="state-abbr">VIC</span></h3>
+        <div class="new-group">
+          <h3><a href="/vic/">Victoria</a> <span class="chip">VIC</span></h3>
           <ul>
-            <li data-expires="2026-11-19T14:00:00.000Z"><a href="/vic/brunswick-life-dental-clinic/">Brunswick Life Dental Clinic</a><span class="new-listing-suburb">Brunswick</span></li>
-            <li data-expires="2026-11-19T14:00:00.000Z"><a href="/vic/burwood-dental-care/">Burwood Dental Care</a><span class="new-listing-suburb">Burwood East</span></li>
-            <li data-expires="2026-11-19T14:00:00.000Z"><a href="/vic/hampshire-crescent-dental-clinic/">Hampshire Crescent Dental Clinic</a><span class="new-listing-suburb">Sunshine</span></li>
-            <li data-expires="2026-11-19T14:00:00.000Z"><a href="/vic/next-smile-melbourne/">Next Smile Melbourne</a><span class="new-listing-suburb">Hawthorn</span></li>
-            <li data-expires="2026-11-19T14:00:00.000Z"><a href="/vic/sunbury-dental-group/">Sunbury Dental Group</a><span class="new-listing-suburb">Sunbury</span></li>
+            <li data-expires="2026-11-19T14:00:00.000Z"><a href="/vic/brunswick-life-dental-clinic/">Brunswick Life Dental Clinic</a><span>Brunswick</span></li>
+            <li data-expires="2026-11-19T14:00:00.000Z"><a href="/vic/burwood-dental-care/">Burwood Dental Care</a><span>Burwood East</span></li>
+            <li data-expires="2026-11-19T14:00:00.000Z"><a href="/vic/hampshire-crescent-dental-clinic/">Hampshire Crescent Dental Clinic</a><span>Sunshine</span></li>
+            <li data-expires="2026-11-19T14:00:00.000Z"><a href="/vic/next-smile-melbourne/">Next Smile Melbourne</a><span>Hawthorn</span></li>
+            <li data-expires="2026-11-19T14:00:00.000Z"><a href="/vic/sunbury-dental-group/">Sunbury Dental Group</a><span>Sunbury</span></li>
           </ul>
         </div>
 
-        <div class="new-state-group">
-          <h3><a href="/nsw/">New South Wales</a> <span class="state-abbr">NSW</span></h3>
+        <div class="new-group">
+          <h3><a href="/nsw/">New South Wales</a> <span class="chip">NSW</span></h3>
           <ul>
-            <li data-expires="2026-11-19T14:00:00.000Z"><a href="/nsw/advanced-dental-care-dubbo/">Advanced Dental Care Dubbo</a><span class="new-listing-suburb">Dubbo</span></li>
-            <li data-expires="2026-11-19T14:00:00.000Z"><a href="/nsw/dr-paulo-pinho-oral-surgery-clinic/">Dr Paulo Pinho Oral Surgery Clinic</a><span class="new-listing-suburb">Sydney</span></li>
-            <li data-expires="2026-11-19T14:00:00.000Z"><a href="/nsw/dr-raymond-platon-associates/">Dr Raymond Platon &amp; Associates</a><span class="new-listing-suburb">Wetherill Park</span></li>
-            <li data-expires="2026-11-19T14:00:00.000Z"><a href="/nsw/next-smile-sydney/">Next Smile Sydney</a><span class="new-listing-suburb">Bondi Junction</span></li>
-            <li data-expires="2026-11-19T14:00:00.000Z"><a href="/nsw/next-smile-wollongong/">Next Smile Wollongong</a><span class="new-listing-suburb">Corrimal</span></li>
-            <li data-expires="2026-11-19T14:00:00.000Z"><a href="/nsw/potter-dental-sydney/">Potter Dental Sydney</a><span class="new-listing-suburb">Sydney</span></li>
-            <li data-expires="2026-11-19T14:00:00.000Z"><a href="/nsw/westpoint-dental-clinic/">Westpoint Dental Clinic</a><span class="new-listing-suburb">Blacktown</span></li>
+            <li data-expires="2026-11-19T14:00:00.000Z"><a href="/nsw/advanced-dental-care-dubbo/">Advanced Dental Care Dubbo</a><span>Dubbo</span></li>
+            <li data-expires="2026-11-19T14:00:00.000Z"><a href="/nsw/dr-paulo-pinho-oral-surgery-clinic/">Dr Paulo Pinho Oral Surgery Clinic</a><span>Sydney</span></li>
+            <li data-expires="2026-11-19T14:00:00.000Z"><a href="/nsw/dr-raymond-platon-associates/">Dr Raymond Platon &amp; Associates</a><span>Wetherill Park</span></li>
+            <li data-expires="2026-11-19T14:00:00.000Z"><a href="/nsw/next-smile-sydney/">Next Smile Sydney</a><span>Bondi Junction</span></li>
+            <li data-expires="2026-11-19T14:00:00.000Z"><a href="/nsw/next-smile-wollongong/">Next Smile Wollongong</a><span>Corrimal</span></li>
+            <li data-expires="2026-11-19T14:00:00.000Z"><a href="/nsw/potter-dental-sydney/">Potter Dental Sydney</a><span>Sydney</span></li>
+            <li data-expires="2026-11-19T14:00:00.000Z"><a href="/nsw/westpoint-dental-clinic/">Westpoint Dental Clinic</a><span>Blacktown</span></li>
           </ul>
         </div>
 
-        <div class="new-state-group">
-          <h3><a href="/qld/">Queensland</a> <span class="state-abbr">QLD</span></h3>
+        <div class="new-group">
+          <h3><a href="/qld/">Queensland</a> <span class="chip">QLD</span></h3>
           <ul>
-            <li data-expires="2026-11-19T14:00:00.000Z"><a href="/qld/bundall-dental-and-implants/">Bundall Dental and Implants</a><span class="new-listing-suburb">Bundall</span></li>
-            <li data-expires="2026-11-19T14:00:00.000Z"><a href="/qld/next-smile-brisbane/">Next Smile Brisbane</a><span class="new-listing-suburb">Brisbane</span></li>
-            <li data-expires="2026-11-19T14:00:00.000Z"><a href="/qld/next-smile-gold-coast/">Next Smile Gold Coast</a><span class="new-listing-suburb">Carrara</span></li>
+            <li data-expires="2026-11-19T14:00:00.000Z"><a href="/qld/bundall-dental-and-implants/">Bundall Dental and Implants</a><span>Bundall</span></li>
+            <li data-expires="2026-11-19T14:00:00.000Z"><a href="/qld/next-smile-brisbane/">Next Smile Brisbane</a><span>Brisbane</span></li>
+            <li data-expires="2026-11-19T14:00:00.000Z"><a href="/qld/next-smile-gold-coast/">Next Smile Gold Coast</a><span>Carrara</span></li>
           </ul>
         </div>
 
-        <div class="new-state-group">
-          <h3><a href="/sa/">South Australia</a> <span class="state-abbr">SA</span></h3>
+        <div class="new-group">
+          <h3><a href="/sa/">South Australia</a> <span class="chip">SA</span></h3>
           <ul>
-            <li data-expires="2026-11-19T14:00:00.000Z"><a href="/sa/next-smile-adelaide/">Next Smile Adelaide</a><span class="new-listing-suburb">Stepney</span></li>
+            <li data-expires="2026-11-19T14:00:00.000Z"><a href="/sa/next-smile-adelaide/">Next Smile Adelaide</a><span>Stepney</span></li>
           </ul>
         </div>
 
-        <div class="new-state-group">
-          <h3><a href="/wa/">Western Australia</a> <span class="state-abbr">WA</span></h3>
+        <div class="new-group">
+          <h3><a href="/wa/">Western Australia</a> <span class="chip">WA</span></h3>
           <ul>
-            <li data-expires="2026-11-19T14:00:00.000Z"><a href="/wa/beyond-smiles-dental-cockburn/">Beyond Smiles Dental Cockburn</a><span class="new-listing-suburb">Cockburn Central</span></li>
-            <li data-expires="2026-11-19T14:00:00.000Z"><a href="/wa/beyond-smiles-dental-forrestdale/">Beyond Smiles Dental Forrestdale</a><span class="new-listing-suburb">Forrestdale</span></li>
-            <li data-expires="2026-11-19T14:00:00.000Z"><a href="/wa/beyond-smiles-dental-kardinya/">Beyond Smiles Dental Kardinya</a><span class="new-listing-suburb">Kardinya</span></li>
-            <li data-expires="2026-11-19T14:00:00.000Z"><a href="/wa/beyond-smiles-dental-kwinana/">Beyond Smiles Dental Kwinana</a><span class="new-listing-suburb">Kwinana</span></li>
-            <li data-expires="2026-11-19T14:00:00.000Z"><a href="/wa/beyond-smiles-dental-stirling/">Beyond Smiles Dental Stirling</a><span class="new-listing-suburb">Stirling</span></li>
-            <li data-expires="2026-11-19T14:00:00.000Z"><a href="/wa/beyond-smiles-dental-yanchep/">Beyond Smiles Dental Yanchep</a><span class="new-listing-suburb">Yanchep</span></li>
-            <li data-expires="2026-11-19T14:00:00.000Z"><a href="/wa/next-smile-perth/">Next Smile Perth</a><span class="new-listing-suburb">Perth</span></li>
+            <li data-expires="2026-11-19T14:00:00.000Z"><a href="/wa/beyond-smiles-dental-cockburn/">Beyond Smiles Dental Cockburn</a><span>Cockburn Central</span></li>
+            <li data-expires="2026-11-19T14:00:00.000Z"><a href="/wa/beyond-smiles-dental-forrestdale/">Beyond Smiles Dental Forrestdale</a><span>Forrestdale</span></li>
+            <li data-expires="2026-11-19T14:00:00.000Z"><a href="/wa/beyond-smiles-dental-kardinya/">Beyond Smiles Dental Kardinya</a><span>Kardinya</span></li>
+            <li data-expires="2026-11-19T14:00:00.000Z"><a href="/wa/beyond-smiles-dental-kwinana/">Beyond Smiles Dental Kwinana</a><span>Kwinana</span></li>
+            <li data-expires="2026-11-19T14:00:00.000Z"><a href="/wa/beyond-smiles-dental-stirling/">Beyond Smiles Dental Stirling</a><span>Stirling</span></li>
+            <li data-expires="2026-11-19T14:00:00.000Z"><a href="/wa/beyond-smiles-dental-yanchep/">Beyond Smiles Dental Yanchep</a><span>Yanchep</span></li>
+            <li data-expires="2026-11-19T14:00:00.000Z"><a href="/wa/next-smile-perth/">Next Smile Perth</a><span>Perth</span></li>
           </ul>
+        </div>
+        <div class="new-rail__outro">
+          <p>Run a dental practice? Listing is free.</p>
+          <a href="/submit-listing/" class="btn btn--quiet">List your practice</a>
         </div>
       </div>
-    </section>
-    <script>
-    (function(){
-      var now = Date.now();
-      document.querySelectorAll('#new-listings li[data-expires]').forEach(function(li){
-        if (Date.parse(li.getAttribute('data-expires')) <= now) li.remove();
-      });
-      document.querySelectorAll('#new-listings .new-state-group').forEach(function(g){
-        if (!g.querySelector('li')) g.remove();
-      });
-      if (!document.querySelector('#new-listings li')) document.getElementById('new-listings').remove();
-    })();
-    </script>
-    <section class="home-cta">
-      <div class="home-cta-inner">
-        <h2>Are you a dental practice?</h2>
-        <p>Get your practice listed on GoDental.au and reach thousands of Australians searching for a dentist.</p>
-        <a href="/submit-listing/" class="btn btn-call btn-lg">Submit Your Listing</a>
-      </div>
-    </section>
-  </main>
+    </div>
+  </section>
   <script>
   (function(){
+    var now = Date.now();
+    document.querySelectorAll('#new-listings li[data-expires]').forEach(function(li){
+      if (Date.parse(li.getAttribute('data-expires')) <= now) li.remove();
+    });
+    document.querySelectorAll('#new-listings .new-group').forEach(function(g){
+      if (!g.querySelector('li')) g.remove();
+    });
+    if (!document.querySelector('#new-listings li')) document.getElementById('new-listings').remove();
+  })();
+  </script>
+
+  <section class="trust" data-sc-act="flow" aria-labelledby="trust-title">
+    <div class="wrap trust-layout">
+      <figure class="trust-photo">
+        <div class="trust-photo__frame">
+          <img src="/images/home/trust.jpg" alt="A dental practice front desk with appointment cards, a small plant and a glass of water in morning light" width="1050" height="1400" loading="lazy" data-sc-parallax="-0.6">
+        </div>
+      </figure>
+      <div class="trust-copy" data-sc-in data-sc-stagger="70">
+        <h2 id="trust-title" class="h2">Why you can trust the list</h2>
+        <p class="lede">GoDental is small on purpose. Nobody gets on it by accident.</p>
+        <dl class="trust-facts">
+          <div><dt>Submitted by the practice</dt><dd>Every listing comes from the practice owner, manager or their own staff.</dd></div>
+          <div><dt>Checked by a person</dt><dd>Addresses, phone numbers and services are read and corrected by hand before anything goes live.</dd></div>
+          <div><dt>No agencies</dt><dd>We don&rsquo;t accept listings from marketing agencies or third-party listing services.</dd></div>
+          <div><dt>Free for patients</dt><dd>No account, no booking fee. Call the practice directly.</dd></div>
+        </dl>
+      </div>
+    </div>
+  </section>
+
+  <section class="closing" id="appointment" aria-labelledby="card-title">
+    <div class="wrap closing-layout">
+      <form class="appt-card" action="/search/" method="get" data-sc-in>
+        <div class="appt-card__head">
+          <img src="/images/favicon-192.png" alt="" width="40" height="40">
+          <h2 id="card-title">Your appointment card</h2>
+        </div>
+        <div class="appt-card__row">
+          <label for="appt-concern">Treatment</label>
+          <select id="appt-concern" name="concern"><option value="">Anything</option><option value="checkups">Check-ups and fillings</option><option value="cosmetic">Whitening and veneers</option><option value="straighten">Straightening</option><option value="rootcanal">Root canal</option><option value="wisdom">Wisdom teeth and oral surgery</option><option value="missing">Missing or broken teeth</option><option value="emergency">Emergency care</option><option value="kids">Children&#039;s dentistry</option></select>
+        </div>
+        <div class="appt-card__row">
+          <label for="appt-state">State</label>
+          <select id="appt-state" name="state"><option value="">Anywhere</option><option value="VIC">Victoria</option><option value="NSW">New South Wales</option><option value="QLD">Queensland</option><option value="SA">South Australia</option><option value="WA">Western Australia</option><option value="TAS">Tasmania</option><option value="NT">Northern Territory</option><option value="ACT">Australian Capital Territory</option></select>
+        </div>
+        <div class="appt-card__row">
+          <label for="appt-q">Suburb or postcode</label>
+          <input id="appt-q" name="q" type="text" inputmode="text" placeholder="Optional" autocomplete="postal-code">
+        </div>
+        <div class="appt-card__foot">
+          <button type="submit" class="btn btn--primary btn--lg">Find a dentist</button>
+          <p>Free, no account needed.</p>
+        </div>
+      </form>
+      <div class="closing-aside">
+        <p class="closing-aside__line">That&rsquo;s it. No sign-up, no booking fee. Just the practices, and their phone numbers.</p>
+        <p>Run a practice? <a href="/submit-listing/">List your practice</a>, it&rsquo;s free.</p>
+      </div>
+    </div>
+  </section>
+
+  </main>
+  <script>
+  document.addEventListener('DOMContentLoaded', function(){
+    var DATA = {"checkups":{"name":"Check-ups and fillings","short":"Check-ups","total":200,"byState":{"VIC":51,"NSW":86,"QLD":12,"SA":8,"WA":16,"TAS":8,"NT":9,"ACT":10}},"cosmetic":{"name":"Whitening and veneers","short":"Whitening","total":189,"byState":{"VIC":51,"NSW":83,"QLD":12,"SA":8,"WA":10,"TAS":8,"NT":7,"ACT":10}},"straighten":{"name":"Straightening","short":"Straightening","total":62,"byState":{"VIC":19,"NSW":20,"QLD":7,"SA":3,"WA":5,"TAS":3,"NT":1,"ACT":4}},"rootcanal":{"name":"Root canal","short":"Root canal","total":158,"byState":{"VIC":38,"NSW":77,"QLD":6,"SA":7,"WA":8,"TAS":7,"NT":6,"ACT":9}},"wisdom":{"name":"Wisdom teeth and oral surgery","short":"Wisdom teeth","total":26,"byState":{"VIC":10,"NSW":12,"QLD":2,"SA":0,"WA":0,"TAS":0,"NT":2,"ACT":0}},"missing":{"name":"Missing or broken teeth","short":"Implants","total":198,"byState":{"VIC":51,"NSW":87,"QLD":14,"SA":8,"WA":11,"TAS":8,"NT":9,"ACT":10}},"emergency":{"name":"Emergency care","short":"Emergency","total":170,"byState":{"VIC":46,"NSW":80,"QLD":9,"SA":4,"WA":7,"TAS":6,"NT":9,"ACT":9}},"kids":{"name":"Children's dentistry","short":"Kids","total":144,"byState":{"VIC":41,"NSW":64,"QLD":8,"SA":4,"WA":7,"TAS":5,"NT":7,"ACT":8}}};
+    var TOTAL = 208;
+    var STATE_TOTALS = {"VIC":52,"NSW":89,"QLD":14,"SA":9,"WA":17,"TAS":8,"NT":9,"ACT":10};
+    var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var narrow = window.matchMedia('(max-width: 860px)').matches;
+    var home = document.getElementById('home');
+    var chart = document.getElementById('chart');
+
+    // Phones get the chart in natural flow: a pinned instrument taller than the
+    // screen cannot be tapped comfortably.
+    if (narrow || reduce) chart.setAttribute('data-sc-act', 'flow');
+    // Reduced motion: nothing animates in the hero, so it should not hold the page either
+    if (reduce) document.querySelector('.hero').setAttribute('data-sc-act', 'flow');
+    if (window.ScrollCraft) ScrollCraft.mount(home);
+
+    // ---- smile chart -------------------------------------------------------
+    var order = ['wisdom', 'rootcanal', 'missing', 'checkups', 'straighten', 'cosmetic'];
+    var chosen = null;
+    var shown = undefined;
+    var kicker = chart.querySelector('[data-panel-kicker]');
+    var countEl = chart.querySelector('[data-panel-count]');
+    var nameEl = chart.querySelector('[data-panel-name]');
+    var goEl = chart.querySelector('[data-panel-go]');
+    var buttons = chart.querySelectorAll('.concern-btn');
+
+    function show(id, demo) {
+      if (id === shown) return;
+      shown = id;
+      chart.setAttribute('data-active', id || '');
+      buttons.forEach(function(b){ b.setAttribute('aria-pressed', String(!demo && b.dataset.concern === id)); });
+      var d = id ? DATA[id] : null;
+      kicker.textContent = d ? (demo ? 'For example' : 'Your pick') : 'Pick a tooth';
+      countEl.textContent = d ? d.total : TOTAL;
+      nameEl.textContent = d ? 'practices offer ' + d.name.toLowerCase() : 'practices listed across Australia';
+      var max = 1;
+      Object.keys(STATE_TOTALS).forEach(function(s){ max = Math.max(max, d ? d.byState[s] : STATE_TOTALS[s]); });
+      Object.keys(STATE_TOTALS).forEach(function(s){
+        var n = d ? d.byState[s] : STATE_TOTALS[s];
+        chart.querySelector('[data-bar="' + s + '"]').style.setProperty('--v', (n / max).toFixed(3));
+        chart.querySelector('[data-bar-n="' + s + '"]').textContent = n;
+      });
+      goEl.href = '/search/' + (id ? '?concern=' + id : '');
+    }
+
+    function choose(id) {
+      chosen = (chosen === id) ? null : id;
+      show(chosen, false);
+      if (window.GoDentalSearch) GoDentalSearch.set({ concern: chosen });
+      paintStates();
+      document.getElementById('appt-concern').value = chosen || '';
+    }
+
+    buttons.forEach(function(b){ b.addEventListener('click', function(){ choose(b.dataset.concern); }); });
+    chart.querySelectorAll('.tooth').forEach(function(t){
+      t.addEventListener('click', function(){ choose(t.getAttribute('data-concern')); });
+    });
+
+    // Scroll draws the arch; once drawn, a pinned stage walks through the groups
+    // until the visitor picks one.
+    var ticking = false;
+    function frame() {
+      ticking = false;
+      var r = chart.getBoundingClientRect();
+      var vh = window.innerHeight;
+      var draw = reduce ? 1 : Math.min(1, Math.max(0, (vh * 0.85 - r.top) / (Math.min(r.height, vh * 1.6) * 0.55)));
+      chart.style.setProperty('--draw', draw.toFixed(3));
+      if (chosen || narrow || reduce) return;
+      var pin = Math.min(1, Math.max(0, -r.top / Math.max(1, r.height - vh)));
+      var i = Math.floor((pin - 0.32) / 0.5 * order.length);
+      show(pin > 0.32 && i < order.length ? order[i] : null, true);
+    }
+    function onScroll() { if (!ticking) { ticking = true; requestAnimationFrame(frame); } }
+    addEventListener('scroll', onScroll, { passive: true });
+    addEventListener('resize', onScroll, { passive: true });
+    frame();
+
+    // ---- states: show how many match the chosen treatment -----------------
+    var statesLede = document.querySelector('[data-states-lede]');
+    var statesLedeDefault = statesLede.textContent;
+    function paintStates() {
+      var d = chosen ? DATA[chosen] : null;
+      document.querySelectorAll('[data-state-match]').forEach(function(el){
+        var s = el.getAttribute('data-state-match');
+        if (d) { el.textContent = d.byState[s] + ' offer ' + d.short.toLowerCase(); el.hidden = false; }
+        else el.hidden = true;
+      });
+      statesLede.textContent = d ? 'Every state and territory. Underneath: how many offer ' + d.name.toLowerCase() + '.' : statesLedeDefault;
+    }
+    document.querySelectorAll('[data-state]').forEach(function(a){
+      a.addEventListener('click', function(){ if (window.GoDentalSearch) GoDentalSearch.set({ state: a.dataset.state }); });
+    });
+
+    // ---- appointment card: arrives filled in with the visitor's choices ---
+    var saved = window.GoDentalSearch ? GoDentalSearch.get() : {};
+    if (saved.concern && DATA[saved.concern]) { chosen = saved.concern; show(chosen, false); paintStates(); }
+    document.getElementById('appt-concern').value = saved.concern || '';
+    document.getElementById('appt-state').value = saved.state || '';
+    document.addEventListener('gd:search', function(e){
+      document.getElementById('appt-state').value = e.detail.state || '';
+    });
+    document.querySelector('.appt-card').addEventListener('submit', function(e){
+      var f = e.target;
+      ['concern', 'state', 'q'].forEach(function(n){ if (!f.elements[n].value) f.elements[n].disabled = true; });
+      if (window.GoDentalSearch) GoDentalSearch.set({ concern: f.elements.concern.value, state: f.elements.state.value });
+    });
+
+    // ---- hero search autocomplete -----------------------------------------
     var input = document.getElementById('search-input');
     var ac = document.getElementById('search-autocomplete');
     var suburbs = null;
+    var matches = [];
     var activeIdx = -1;
-
+    function esc(s) { var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
     function loadSuburbs(cb) {
       if (suburbs) return cb();
-      fetch('/suburbs.json').then(function(r){ return r.json(); }).then(function(data){
-        suburbs = data;
-        cb();
-      });
+      fetch('/suburbs.json').then(function(r){ return r.json(); }).then(function(data){ suburbs = data; cb(); });
     }
-
-    function render(matches) {
-      if (!matches.length) { ac.classList.remove('open'); ac.innerHTML = ''; activeIdx = -1; return; }
+    function go(m) {
+      window.location.href = '/search/?q=' + encodeURIComponent(m.postcode)
+        + '&suburb=' + encodeURIComponent(m.suburb) + '&state=' + encodeURIComponent(m.state);
+    }
+    function render() {
+      activeIdx = -1;
+      if (!matches.length) { ac.classList.remove('open'); ac.innerHTML = ''; return; }
       ac.innerHTML = matches.map(function(m, i){
-        return '<li role="option" data-idx="' + i + '">'
-          + '<span class="ac-suburb">' + esc(m.suburb) + '</span>'
-          + '<span class="ac-meta">' + esc(m.postcode) + ', ' + esc(m.state) + '</span>'
-          + '</li>';
+        return '<li role="option" data-idx="' + i + '"><span class="ac-suburb">' + esc(m.suburb) + '</span><span class="ac-meta">' + esc(m.postcode) + ', ' + esc(m.state) + '</span></li>';
       }).join('');
       ac.classList.add('open');
-      activeIdx = -1;
     }
-
-    function esc(s) {
-      var d = document.createElement('div'); d.textContent = s; return d.innerHTML;
-    }
-
-    function navigate(m) {
-      window.location.href = '/search/?q=' + encodeURIComponent(m.postcode)
-        + '&suburb=' + encodeURIComponent(m.suburb)
-        + '&state=' + encodeURIComponent(m.state);
-    }
-
     function setActive(idx) {
       var items = ac.querySelectorAll('li');
       items.forEach(function(li){ li.classList.remove('active'); });
-      if (idx >= 0 && idx < items.length) {
-        items[idx].classList.add('active');
-        items[idx].scrollIntoView({ block: 'nearest' });
-      }
+      if (items[idx]) items[idx].classList.add('active');
       activeIdx = idx;
     }
-
     input.addEventListener('input', function(){
       var val = this.value.trim().toLowerCase();
-      if (val.length < 2) { ac.classList.remove('open'); ac.innerHTML = ''; return; }
+      if (val.length < 2) { matches = []; render(); return; }
       loadSuburbs(function(){
         var isNum = /^\d+$/.test(val);
-        var matches = suburbs.filter(function(s){
-          if (isNum) return s.postcode.indexOf(val) === 0;
-          return s.suburb.toLowerCase().indexOf(val) === 0;
+        matches = suburbs.filter(function(s){
+          return isNum ? s.postcode.indexOf(val) === 0 : s.suburb.toLowerCase().indexOf(val) === 0;
         }).slice(0, 8);
-        render(matches);
+        render();
       });
     });
-
     input.addEventListener('keydown', function(e){
-      var items = ac.querySelectorAll('li');
-      if (!items.length) return;
-      if (e.key === 'ArrowDown') { e.preventDefault(); setActive(Math.min(activeIdx + 1, items.length - 1)); }
+      if (!matches.length) return;
+      if (e.key === 'ArrowDown') { e.preventDefault(); setActive(Math.min(activeIdx + 1, matches.length - 1)); }
       else if (e.key === 'ArrowUp') { e.preventDefault(); setActive(Math.max(activeIdx - 1, 0)); }
-      else if (e.key === 'Enter' && activeIdx >= 0) {
-        e.preventDefault();
-        var idx = activeIdx;
-        var val = input.value.trim().toLowerCase();
-        var isNum = /^\d+$/.test(val);
-        var matches = suburbs.filter(function(s){
-          if (isNum) return s.postcode.indexOf(val) === 0;
-          return s.suburb.toLowerCase().indexOf(val) === 0;
-        }).slice(0, 8);
-        if (matches[idx]) navigate(matches[idx]);
-      }
+      else if (e.key === 'Enter' && activeIdx >= 0) { e.preventDefault(); go(matches[activeIdx]); }
     });
-
     ac.addEventListener('click', function(e){
       var li = e.target.closest('li');
-      if (!li) return;
-      var val = input.value.trim().toLowerCase();
-      var isNum = /^\d+$/.test(val);
-      var matches = suburbs.filter(function(s){
-        if (isNum) return s.postcode.indexOf(val) === 0;
-        return s.suburb.toLowerCase().indexOf(val) === 0;
-      }).slice(0, 8);
-      var idx = parseInt(li.getAttribute('data-idx'));
-      if (matches[idx]) navigate(matches[idx]);
+      if (li) go(matches[parseInt(li.getAttribute('data-idx'), 10)]);
     });
-
     document.addEventListener('click', function(e){
-      if (!e.target.closest('.search-bar')) { ac.classList.remove('open'); }
+      if (!e.target.closest('.hero-search')) ac.classList.remove('open');
     });
-  })();
+  });
   </script>
+  </div>
   <footer class="site-footer">
-    <div class="container">
-      <p>&copy; 2026 GoDental.au. All rights reserved.</p>
+    <div class="wrap footer-inner">
+      <div class="footer-brand">
+        <img src="/images/logo.png" alt="GoDental.au" width="979" height="233" loading="lazy">
+        <p>Australia&rsquo;s dental directory. Every listing is submitted by the practice and checked by hand before it goes live.</p>
+      </div>
+      <nav class="footer-col" aria-label="Find a dentist by state">
+        <h2>Find a dentist</h2>
+        <ul>
+          <li><a href="/vic/">Victoria</a></li>
+          <li><a href="/nsw/">New South Wales</a></li>
+          <li><a href="/qld/">Queensland</a></li>
+          <li><a href="/sa/">South Australia</a></li>
+          <li><a href="/wa/">Western Australia</a></li>
+          <li><a href="/tas/">Tasmania</a></li>
+          <li><a href="/nt/">Northern Territory</a></li>
+          <li><a href="/act/">Australian Capital Territory</a></li>
+        </ul>
+      </nav>
+      <nav class="footer-col" aria-label="GoDental">
+        <h2>GoDental</h2>
+        <ul>
+          <li><a href="/about/">About</a></li>
+          <li><a href="/submit-listing/">List your practice</a></li>
+          <li><a href="mailto:hello@godental.au">hello@godental.au</a></li>
+        </ul>
+      </nav>
+    </div>
+    <div class="wrap footer-base">
+      <p>&copy; 2026 GoDental.au. Free for patients. No account needed.</p>
     </div>
   </footer>
   <script>
-    document.querySelector('.nav-toggle').addEventListener('click', function() {
-      document.querySelector('.site-nav').classList.toggle('open');
+  (function(){
+    var toggle = document.querySelector('.nav-toggle');
+    var nav = document.getElementById('site-nav');
+    toggle.addEventListener('click', function(){
+      var open = nav.classList.toggle('open');
+      toggle.setAttribute('aria-expanded', String(open));
     });
+    if (window.GoDentalSearch) GoDentalSearch.paint();
+  })();
   </script>
 </body>
 </html>

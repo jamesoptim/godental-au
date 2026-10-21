@@ -5,32 +5,77 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>About Us — GoDental.au</title>
   <meta name="description" content="Learn about GoDental.au, Australia&#039;s dedicated dental practice directory. Find trusted dentists across every state and territory, completely free.">
+  <meta name="theme-color" content="#F5F8F8">
   <link rel="icon" href="/favicon.ico" sizes="32x32">
   <link rel="icon" href="/images/favicon-192.png" type="image/png" sizes="192x192">
   <link rel="apple-touch-icon" href="/images/apple-touch-icon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700&family=Geist:wght@400;500;600&display=swap">
   <link rel="stylesheet" href="/styles.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <script>
+  (function(){
+    // "Your search" pill: the visitor's chosen treatment and state, carried across pages.
+    var names = {"checkups":"Check-ups","cosmetic":"Whitening","straighten":"Straightening","rootcanal":"Root canal","wisdom":"Wisdom teeth","missing":"Implants","emergency":"Emergency","kids":"Kids"};
+    function paint(sel){
+      var pill = document.querySelector('[data-your-search]');
+      if (!pill) return;
+      sel = sel || window.GoDentalSearch.get();
+      var parts = [];
+      if (sel.concern && names[sel.concern]) parts.push(names[sel.concern]);
+      if (sel.state) parts.push(sel.state);
+      if (!parts.length) { pill.hidden = true; return; }
+      var qs = new URLSearchParams();
+      if (sel.concern) qs.set('concern', sel.concern);
+      if (sel.state) qs.set('state', sel.state);
+      pill.href = '/search/?' + qs.toString();
+      pill.querySelector('[data-your-search-value]').textContent = parts.join(' \u00b7 ');
+      pill.hidden = false;
+    }
+    window.GoDentalSearch = {
+      paint: function(){ paint(); },
+      get: function(){ try { return JSON.parse(localStorage.getItem('gd-search') || '{}'); } catch (e) { return {}; } },
+      set: function(patch){
+        var sel = this.get();
+        for (var k in patch) { if (patch[k]) sel[k] = patch[k]; else delete sel[k]; }
+        try { localStorage.setItem('gd-search', JSON.stringify(sel)); } catch (e) {}
+        paint(sel);
+        document.dispatchEvent(new CustomEvent('gd:search', { detail: sel }));
+        return sel;
+      }
+    };
+  })();
+  </script>
 </head>
 <body class="page-about">
+  <a class="skip-link" href="#main">Skip to content</a>
   <header class="site-header">
-    <div class="container header-inner">
-      <a href="/" class="site-logo"><img src="/images/logo.png" alt="GoDental.au" height="36"></a>
-      <nav class="site-nav">
-        <a href="/vic/">VIC</a>
-              <a href="/nsw/">NSW</a>
-              <a href="/qld/">QLD</a>
-              <a href="/sa/">SA</a>
-              <a href="/wa/">WA</a>
-              <a href="/tas/">TAS</a>
-              <a href="/nt/">NT</a>
-              <a href="/act/">ACT</a>
-              <span class="nav-divider"></span>
-              <a href="/about/">About</a>
-              <a href="/submit-listing/" class="nav-cta"><i class="fa-solid fa-tooth"></i> List Your Practice</a>
+    <div class="wrap header-inner">
+      <a href="/" class="site-logo"><img src="/images/logo.png" alt="GoDental.au" width="979" height="233"></a>
+      <nav class="site-nav" id="site-nav" aria-label="Main">
+        <div class="site-nav__states">
+          <a href="/vic/">VIC</a>
+          <a href="/nsw/">NSW</a>
+          <a href="/qld/">QLD</a>
+          <a href="/sa/">SA</a>
+          <a href="/wa/">WA</a>
+          <a href="/tas/">TAS</a>
+          <a href="/nt/">NT</a>
+          <a href="/act/">ACT</a>
+        </div>
+        <a href="/about/" class="site-nav__link">About</a>
+        <a href="/submit-listing/" class="btn btn--quiet site-nav__cta">List your practice</a>
       </nav>
-      <button class="nav-toggle" aria-label="Toggle navigation">&#9776;</button>
+      <a class="your-search" href="/search/" data-your-search hidden>
+        <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+        <span class="your-search__label">Your search</span>
+        <span class="your-search__value" data-your-search-value></span>
+      </a>
+      <button class="nav-toggle" aria-label="Menu" aria-expanded="false" aria-controls="site-nav"><i class="fa-solid fa-bars" aria-hidden="true"></i></button>
     </div>
   </header>
+  <div id="main">
   
   <main class="container page-content">
     <nav class="breadcrumbs" aria-label="Breadcrumb">
@@ -95,15 +140,49 @@
       </aside>
     </div>
   </main>
+  </div>
   <footer class="site-footer">
-    <div class="container">
-      <p>&copy; 2026 GoDental.au. All rights reserved.</p>
+    <div class="wrap footer-inner">
+      <div class="footer-brand">
+        <img src="/images/logo.png" alt="GoDental.au" width="979" height="233" loading="lazy">
+        <p>Australia&rsquo;s dental directory. Every listing is submitted by the practice and checked by hand before it goes live.</p>
+      </div>
+      <nav class="footer-col" aria-label="Find a dentist by state">
+        <h2>Find a dentist</h2>
+        <ul>
+          <li><a href="/vic/">Victoria</a></li>
+          <li><a href="/nsw/">New South Wales</a></li>
+          <li><a href="/qld/">Queensland</a></li>
+          <li><a href="/sa/">South Australia</a></li>
+          <li><a href="/wa/">Western Australia</a></li>
+          <li><a href="/tas/">Tasmania</a></li>
+          <li><a href="/nt/">Northern Territory</a></li>
+          <li><a href="/act/">Australian Capital Territory</a></li>
+        </ul>
+      </nav>
+      <nav class="footer-col" aria-label="GoDental">
+        <h2>GoDental</h2>
+        <ul>
+          <li><a href="/about/">About</a></li>
+          <li><a href="/submit-listing/">List your practice</a></li>
+          <li><a href="mailto:hello@godental.au">hello@godental.au</a></li>
+        </ul>
+      </nav>
+    </div>
+    <div class="wrap footer-base">
+      <p>&copy; 2026 GoDental.au. Free for patients. No account needed.</p>
     </div>
   </footer>
   <script>
-    document.querySelector('.nav-toggle').addEventListener('click', function() {
-      document.querySelector('.site-nav').classList.toggle('open');
+  (function(){
+    var toggle = document.querySelector('.nav-toggle');
+    var nav = document.getElementById('site-nav');
+    toggle.addEventListener('click', function(){
+      var open = nav.classList.toggle('open');
+      toggle.setAttribute('aria-expanded', String(open));
     });
+    if (window.GoDentalSearch) GoDentalSearch.paint();
+  })();
   </script>
 </body>
 </html>

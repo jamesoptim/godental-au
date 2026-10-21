@@ -6,32 +6,77 @@
   <title>Search Results — GoDental.au</title>
   <meta name="description" content="Search for dental practices near your suburb or postcode across Australia.">
   <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#F5F8F8">
   <link rel="icon" href="/favicon.ico" sizes="32x32">
   <link rel="icon" href="/images/favicon-192.png" type="image/png" sizes="192x192">
   <link rel="apple-touch-icon" href="/images/apple-touch-icon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700&family=Geist:wght@400;500;600&display=swap">
   <link rel="stylesheet" href="/styles.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <script>
+  (function(){
+    // "Your search" pill: the visitor's chosen treatment and state, carried across pages.
+    var names = {"checkups":"Check-ups","cosmetic":"Whitening","straighten":"Straightening","rootcanal":"Root canal","wisdom":"Wisdom teeth","missing":"Implants","emergency":"Emergency","kids":"Kids"};
+    function paint(sel){
+      var pill = document.querySelector('[data-your-search]');
+      if (!pill) return;
+      sel = sel || window.GoDentalSearch.get();
+      var parts = [];
+      if (sel.concern && names[sel.concern]) parts.push(names[sel.concern]);
+      if (sel.state) parts.push(sel.state);
+      if (!parts.length) { pill.hidden = true; return; }
+      var qs = new URLSearchParams();
+      if (sel.concern) qs.set('concern', sel.concern);
+      if (sel.state) qs.set('state', sel.state);
+      pill.href = '/search/?' + qs.toString();
+      pill.querySelector('[data-your-search-value]').textContent = parts.join(' \u00b7 ');
+      pill.hidden = false;
+    }
+    window.GoDentalSearch = {
+      paint: function(){ paint(); },
+      get: function(){ try { return JSON.parse(localStorage.getItem('gd-search') || '{}'); } catch (e) { return {}; } },
+      set: function(patch){
+        var sel = this.get();
+        for (var k in patch) { if (patch[k]) sel[k] = patch[k]; else delete sel[k]; }
+        try { localStorage.setItem('gd-search', JSON.stringify(sel)); } catch (e) {}
+        paint(sel);
+        document.dispatchEvent(new CustomEvent('gd:search', { detail: sel }));
+        return sel;
+      }
+    };
+  })();
+  </script>
 </head>
 <body class="page-search">
+  <a class="skip-link" href="#main">Skip to content</a>
   <header class="site-header">
-    <div class="container header-inner">
-      <a href="/" class="site-logo"><img src="/images/logo.png" alt="GoDental.au" height="36"></a>
-      <nav class="site-nav">
-        <a href="/vic/">VIC</a>
-              <a href="/nsw/">NSW</a>
-              <a href="/qld/">QLD</a>
-              <a href="/sa/">SA</a>
-              <a href="/wa/">WA</a>
-              <a href="/tas/">TAS</a>
-              <a href="/nt/">NT</a>
-              <a href="/act/">ACT</a>
-              <span class="nav-divider"></span>
-              <a href="/about/">About</a>
-              <a href="/submit-listing/" class="nav-cta"><i class="fa-solid fa-tooth"></i> List Your Practice</a>
+    <div class="wrap header-inner">
+      <a href="/" class="site-logo"><img src="/images/logo.png" alt="GoDental.au" width="979" height="233"></a>
+      <nav class="site-nav" id="site-nav" aria-label="Main">
+        <div class="site-nav__states">
+          <a href="/vic/">VIC</a>
+          <a href="/nsw/">NSW</a>
+          <a href="/qld/">QLD</a>
+          <a href="/sa/">SA</a>
+          <a href="/wa/">WA</a>
+          <a href="/tas/">TAS</a>
+          <a href="/nt/">NT</a>
+          <a href="/act/">ACT</a>
+        </div>
+        <a href="/about/" class="site-nav__link">About</a>
+        <a href="/submit-listing/" class="btn btn--quiet site-nav__cta">List your practice</a>
       </nav>
-      <button class="nav-toggle" aria-label="Toggle navigation">&#9776;</button>
+      <a class="your-search" href="/search/" data-your-search hidden>
+        <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+        <span class="your-search__label">Your search</span>
+        <span class="your-search__value" data-your-search-value></span>
+      </a>
+      <button class="nav-toggle" aria-label="Menu" aria-expanded="false" aria-controls="site-nav"><i class="fa-solid fa-bars" aria-hidden="true"></i></button>
     </div>
   </header>
+  <div id="main">
   
   <main class="container search-page">
     <div class="search-header">
@@ -176,7 +221,7 @@
     }
 
     function renderCard(p) {
-      var distStr = p.distance < 1 ? '< 1 km' : p.distance.toFixed(1) + ' km';
+      var distStr = p.distance == null ? '' : p.distance < 1 ? '< 1 km' : p.distance.toFixed(1) + ' km';
       var tags = (p.services || []).map(function(s){ return '<span class="tag">' + esc(s) + '</span>'; }).join(' ');
       var featuredBadge = p.featured ? '<span class="featured-badge"><i class="fa-solid fa-star"></i> Featured</span>' : '';
       var featuredClass = p.featured ? ' featured' : '';
@@ -189,7 +234,7 @@
         + '<h2><a href="/' + esc(p.state) + '/' + esc(p.slug) + '/">' + esc(p.name) + '</a>' + featuredBadge + '</h2>'
         + '<p class="practice-address"><i class="fa-solid fa-location-dot"></i> ' + esc(p.address) + '</p>'
         + '<div class="tags">' + tags + '</div>'
-        + '<span class="distance-badge"><i class="fa-solid fa-location-dot"></i> ' + distStr + '</span>'
+        + (distStr ? '<span class="distance-badge"><i class="fa-solid fa-location-dot"></i> ' + distStr + '</span>' : '')
         + '</div>'
         + '<div class="practice-card-action">'
         + '<a href="tel:' + p.phone.replace(/[^+d]/g, '') + '" class="btn btn-call"><i class="fa-solid fa-phone"></i>' + esc(p.phone) + '</a>'
@@ -198,56 +243,80 @@
     }
 
     var params = new URLSearchParams(window.location.search);
-    var q = params.get('q');
+    var q = (params.get('q') || '').trim();
     var suburbName = params.get('suburb') || '';
-    var stateName = params.get('state') || '';
+    var stateName = (params.get('state') || '').toUpperCase();
+    var concern = params.get('concern') || '';
+    var CONCERNS = {"checkups":"Check-ups and fillings","cosmetic":"Whitening and veneers","straighten":"Straightening","rootcanal":"Root canal","wisdom":"Wisdom teeth and oral surgery","missing":"Missing or broken teeth","emergency":"Emergency care","kids":"Children's dentistry"};
+    var concernName = CONCERNS[concern] || '';
+    if (!concernName) concern = '';
+    var container = document.getElementById('search-results');
+    var status = document.getElementById('search-status');
+    function byConcern(p) { return !concern || (p.c || []).indexOf(concern) >= 0; }
+    function setTitle(t) {
+      document.getElementById('search-title').textContent = t;
+      document.title = t + ' | GoDental.au';
+    }
+    if (window.GoDentalSearch && (concern || stateName)) GoDentalSearch.set({ concern: concern, state: stateName });
 
-    if (!q) {
-      document.getElementById('search-results').innerHTML =
+    if (!q && !concern && !stateName) {
+      container.innerHTML =
         '<div class="no-results-msg"><i class="fa-solid fa-magnifying-glass"></i>'
         + '<h2>Search for a suburb or postcode</h2>'
         + '<p>Use the search bar above to find dental practices near you.</p></div>';
-      document.getElementById('search-status').textContent = '';
+      status.textContent = '';
+      return;
+    }
+
+    if (!q) {
+      // Treatment and/or state, no location: list every match, featured first
+      fetch('/search-data.json').then(function(r){ return r.json(); }).then(function(practices){
+        var list = practices.filter(function(p){ return byConcern(p) && (!stateName || p.stateAbbr === stateName); })
+          .sort(function(a, b){ return (b.featured ? 1 : 0) - (a.featured ? 1 : 0) || a.name.localeCompare(b.name); });
+        setTitle((concernName ? concernName + ' dentists' : 'Dentists') + (stateName ? ' in ' + stateName : ' in Australia'));
+        status.textContent = list.length + ' practice' + (list.length !== 1 ? 's' : '') + '. Add a suburb or postcode above to sort by distance.';
+        container.innerHTML = list.length
+          ? '<div class="practice-list">' + list.map(renderCard).join('') + '</div>'
+          : '<div class="no-results-msg"><i class="fa-solid fa-tooth"></i><h2>No matches yet</h2><p>No listed practice in ' + esc(stateName) + ' offers that treatment yet. Try another state.</p></div>';
+      });
       return;
     }
 
     // Pre-fill the search input
     input.value = suburbName ? suburbName + ' ' + q : q;
 
-    // Update title
-    if (suburbName) {
-      document.getElementById('search-title').textContent = 'Dentists near ' + suburbName + ', ' + stateName;
-      document.title = 'Dentists near ' + suburbName + ', ' + stateName + ' — GoDental.au';
-    }
-
     // Fetch search data
     Promise.all([
       fetch('/search-data.json').then(function(r){ return r.json(); }),
       fetch('/suburbs.json').then(function(r){ return r.json(); })
     ]).then(function(results) {
-      var practices = results[0];
+      var practices = results[0].filter(byConcern);
       var suburbs = results[1];
       suburbsData = suburbs; // cache for autocomplete
 
-      // Find the search location coordinates
+      // Find the search location: a postcode, or a suburb name typed in full
       var searchLoc = null;
+      var isPostcode = /^\d{4}$/.test(q);
       for (var i = 0; i < suburbs.length; i++) {
-        if (suburbs[i].postcode === q) {
-          // If suburb name matches too, prefer that one
-          if (suburbName && suburbs[i].suburb.toLowerCase() === suburbName.toLowerCase()) {
-            searchLoc = suburbs[i];
-            break;
-          }
-          if (!searchLoc) searchLoc = suburbs[i];
-        }
+        var sb = suburbs[i];
+        var hit = isPostcode ? sb.postcode === q : sb.suburb.toLowerCase() === q.toLowerCase();
+        if (!hit) continue;
+        if (stateName && sb.state === stateName) { searchLoc = sb; break; }
+        if (suburbName && sb.suburb.toLowerCase() === suburbName.toLowerCase()) { searchLoc = sb; break; }
+        if (!searchLoc) searchLoc = sb;
+      }
+      if (searchLoc) {
+        suburbName = searchLoc.suburb;
+        setTitle((concernName ? concernName + ' dentists' : 'Dentists') + ' near ' + searchLoc.suburb + ', ' + searchLoc.state);
+        input.value = searchLoc.suburb + ' ' + searchLoc.postcode;
       }
 
       if (!searchLoc) {
-        document.getElementById('search-results').innerHTML =
+        container.innerHTML =
           '<div class="no-results-msg"><i class="fa-solid fa-map-marker-alt"></i>'
           + '<h2>Location not found</h2>'
-          + '<p>We couldn\u2019t find a location for postcode "' + esc(q) + '". Please try another search.</p></div>';
-        document.getElementById('search-status').textContent = '';
+          + '<p>We couldn\u2019t find "' + esc(q) + '". Try a four-digit postcode, or pick a suburb from the list as you type.</p></div>';
+        status.textContent = '';
         return;
       }
 
@@ -259,9 +328,6 @@
 
       // Filter within 25km
       var nearby = withDist.filter(function(p){ return p.distance <= 25; });
-
-      var container = document.getElementById('search-results');
-      var status = document.getElementById('search-status');
 
       if (nearby.length > 0) {
         status.textContent = 'Showing ' + nearby.length + ' practice' + (nearby.length !== 1 ? 's' : '') + ' within 25 km of ' + (suburbName || q);
@@ -284,15 +350,49 @@
     });
   })();
   </script>
+  </div>
   <footer class="site-footer">
-    <div class="container">
-      <p>&copy; 2026 GoDental.au. All rights reserved.</p>
+    <div class="wrap footer-inner">
+      <div class="footer-brand">
+        <img src="/images/logo.png" alt="GoDental.au" width="979" height="233" loading="lazy">
+        <p>Australia&rsquo;s dental directory. Every listing is submitted by the practice and checked by hand before it goes live.</p>
+      </div>
+      <nav class="footer-col" aria-label="Find a dentist by state">
+        <h2>Find a dentist</h2>
+        <ul>
+          <li><a href="/vic/">Victoria</a></li>
+          <li><a href="/nsw/">New South Wales</a></li>
+          <li><a href="/qld/">Queensland</a></li>
+          <li><a href="/sa/">South Australia</a></li>
+          <li><a href="/wa/">Western Australia</a></li>
+          <li><a href="/tas/">Tasmania</a></li>
+          <li><a href="/nt/">Northern Territory</a></li>
+          <li><a href="/act/">Australian Capital Territory</a></li>
+        </ul>
+      </nav>
+      <nav class="footer-col" aria-label="GoDental">
+        <h2>GoDental</h2>
+        <ul>
+          <li><a href="/about/">About</a></li>
+          <li><a href="/submit-listing/">List your practice</a></li>
+          <li><a href="mailto:hello@godental.au">hello@godental.au</a></li>
+        </ul>
+      </nav>
+    </div>
+    <div class="wrap footer-base">
+      <p>&copy; 2026 GoDental.au. Free for patients. No account needed.</p>
     </div>
   </footer>
   <script>
-    document.querySelector('.nav-toggle').addEventListener('click', function() {
-      document.querySelector('.site-nav').classList.toggle('open');
+  (function(){
+    var toggle = document.querySelector('.nav-toggle');
+    var nav = document.getElementById('site-nav');
+    toggle.addEventListener('click', function(){
+      var open = nav.classList.toggle('open');
+      toggle.setAttribute('aria-expanded', String(open));
     });
+    if (window.GoDentalSearch) GoDentalSearch.paint();
+  })();
   </script>
 </body>
 </html>
