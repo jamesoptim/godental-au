@@ -1,0 +1,427 @@
+[
+  {
+    "state": "vic",
+    "listedDate": "2026-10-21",
+    "name": "Burwood Dental Care",
+    "slug": "burwood-dental-care",
+    "suburb": "Burwood East",
+    "address": "Shop 9/2-8 Burwood Highway, Burwood East VIC 3151",
+    "phone": "(03) 7034 0333",
+    "website": "https://burwooddentalcare.com.au",
+    "description": "Burwood Dental Care is a dental practice in Burwood East, open seven days, serving patients from Burwood, Glen Waverley and surrounding eastern suburbs. The team provides general, children's and cosmetic dentistry, including porcelain and composite veneers planned with Digital Smile Design.",
+    "services": ["General Dentistry", "Cosmetic Dentistry", "Children's Dentistry", "Orthodontics", "Veneers", "Digital Smile Design"],
+    "highlights": [
+      "Porcelain and composite veneers",
+      "Digital Smile Design treatment planning",
+      "Personalised cosmetic treatment options",
+      "Open seven days",
+      "Serving patients near Glen Waverley"
+    ]
+  },
+  {
+    "state": "vic",
+    "listedDate": "2026-10-21",
+    "name": "Hampshire Crescent Dental Clinic",
+    "slug": "hampshire-crescent-dental-clinic",
+    "suburb": "Sunshine",
+    "address": "370 Hampshire Crescent, Sunshine VIC 3020",
+    "phone": "(03) 9311 1115",
+    "website": "https://hampshirecrescentdental.com.au",
+    "description": "Hampshire Crescent Dental Clinic is a family dental practice in Sunshine, in Melbourne's west. The clinic provides general and emergency dentistry along with dentures, crowns and bridges, implants, clear aligners, cosmetic treatments and children's dentistry.",
+    "services": ["General Dentistry", "Emergency Dentistry", "Dentures", "Crowns and Bridges", "Dental Implants", "Clear Aligners", "Cosmetic Dentistry", "Children's Dentistry"],
+    "highlights": [
+      "Over 50 years of experience",
+      "Emergency appointments available",
+      "Dentures, crowns, bridges and implants",
+      "Clear aligner treatment",
+      "Care for children and adults"
+    ]
+  },
+  {
+    "state": "vic",
+    "listedDate": "2026-10-21",
+    "name": "Brunswick Life Dental Clinic",
+    "slug": "brunswick-life-dental-clinic",
+    "suburb": "Brunswick",
+    "address": "584 Sydney Road, Brunswick VIC 3056",
+    "phone": "(03) 9380 1224",
+    "website": "https://brunswicklifedental.com.au",
+    "description": "Brunswick Life Dental Clinic is an established family dental practice on Sydney Road, Brunswick. For over ten years Dr Chris and the team have cared for patients across Brunswick, Coburg, Parkville, Carlton North, Fitzroy and Northcote, with a calm environment for anxious patients and a focus on prevention and patient education.",
+    "services": ["General Dentistry", "Preventive Dentistry", "Children's Dentistry", "Fillings", "Crowns and Bridges", "Dentures", "Root Canal Treatment", "Teeth Whitening", "Emergency Dentistry", "Wisdom Teeth Removal"],
+    "highlights": [
+      "Over ten years serving Brunswick families",
+      "Same-day emergency appointments",
+      "On-site HICAPS for private health claims",
+      "Child Dental Benefits Schedule (CDBS) welcome",
+      "Flexible payment options"
+    ]
+  },
+  {
+    "state": "vic",
+    "listedDate": "2026-10-21",
+    "name": "Sunbury Dental Group",
+    "slug": "sunbury-dental-group",
+    "suburb": "Sunbury",
+    "address": "Unit 5/92 Evans Street, Sunbury VIC 3429",
+    "phone": "(03) 9717 7311",
+    "website": "https://sunburydentalgroup.com.au",
+    "description": "Sunbury Dental Group provides personalised family dental care in Sunbury, from first toddler visits to seniors. The team focuses on clear explanations and comfortable, anxiety-aware care, offering implants, crowns and bridges, veneers, fillings, dentures, wisdom teeth management and emergency dentistry.",
+    "services": ["General Dentistry", "Emergency Dentistry", "Dental Implants", "Crowns and Bridges", "Veneers", "Composite Fillings", "Dentures", "Wisdom Teeth Removal", "Sports Mouthguards"],
+    "highlights": [
+      "Care for the whole family, toddlers to seniors",
+      "Relaxed space designed to ease dental anxiety",
+      "Comprehensive consultations and tailored plans",
+      "Emergency dental care in Sunbury",
+      "Clear post-treatment guidance"
+    ]
+  },
+  {
+    "state": "vic",
+    "listedDate": "2026-10-21",
+    "name": "Next Smile Melbourne",
+    "slug": "next-smile-melbourne",
+    "suburb": "Hawthorn",
+    "address": "455 Auburn Road, Hawthorn VIC 3122",
+    "phone": "(03) 9826 1702",
+    "website": "https://nextsmile.com.au/melbourne/",
+    "description": "Next Smile Melbourne is a dental implant clinic in Hawthorn for people across Melbourne considering All-on-4 dental implants and full-arch tooth replacement. The clinic provides consultations and individual treatment planning based on clinical assessment.",
+    "services": ["All-on-4 Dental Implants", "Full-Arch Implant Consultations", "Dental Implant Treatment Planning", "Implant-Supported Teeth", "Implant Aftercare"],
+    "highlights": [
+      "Dedicated All-on-4 clinic",
+      "Part of the Next Smile Australia network",
+      "Hawthorn location",
+      "Individual clinical assessment and treatment planning",
+      "Aftercare and maintenance"
+    ]
+  },
+  {
+    "state": "nsw",
+    "listedDate": "2026-10-21",
+    "name": "Next Smile Sydney",
+    "slug": "next-smile-sydney",
+    "suburb": "Bondi Junction",
+    "address": "Level 7, 332-342 Oxford Street, Bondi Junction NSW 2022",
+    "phone": "(02) 7200 5790",
+    "website": "https://nextsmile.com.au/sydney/",
+    "description": "Next Smile Sydney is a dental implant clinic in Bondi Junction for people across Sydney considering All-on-4 dental implants and full-arch tooth replacement. The clinic provides consultations and individual treatment planning based on clinical assessment.",
+    "services": ["All-on-4 Dental Implants", "Full-Arch Implant Consultations", "Dental Implant Treatment Planning", "Implant-Supported Teeth", "Implant Aftercare"],
+    "highlights": [
+      "Dedicated All-on-4 clinic",
+      "Part of the Next Smile Australia network",
+      "Bondi Junction location",
+      "Individual clinical assessment and treatment planning",
+      "Aftercare and maintenance"
+    ]
+  },
+  {
+    "state": "nsw",
+    "listedDate": "2026-10-21",
+    "name": "Next Smile Wollongong",
+    "slug": "next-smile-wollongong",
+    "suburb": "Corrimal",
+    "address": "426 Princes Highway, Corrimal NSW 2518",
+    "phone": "(02) 4208 0151",
+    "website": "https://nextsmile.com.au/all-on-4-wollongong/",
+    "description": "Next Smile Wollongong is a dental implant clinic in Corrimal serving people across Wollongong and the Illawarra who are considering All-on-4 dental implants and full-arch tooth replacement. The clinic provides consultations and individual treatment planning based on clinical assessment.",
+    "services": ["All-on-4 Dental Implants", "Full-Arch Implant Consultations", "Dental Implant Treatment Planning", "Implant-Supported Teeth", "Implant Aftercare"],
+    "highlights": [
+      "Dedicated All-on-4 clinic",
+      "Part of the Next Smile Australia network",
+      "Serving Wollongong and the Illawarra",
+      "Individual clinical assessment and treatment planning",
+      "Aftercare and maintenance"
+    ]
+  },
+  {
+    "state": "nsw",
+    "listedDate": "2026-10-21",
+    "name": "Potter Dental Sydney",
+    "slug": "potter-dental-sydney",
+    "suburb": "Sydney",
+    "address": "Level 8, 235 Macquarie Street, Sydney NSW 2000",
+    "phone": "0418 825 977",
+    "website": "https://potterdentalsydney.com",
+    "description": "Potter Dental Sydney is a family dental practice on Macquarie Street in the Sydney CBD, led by principal dentist Dr Christopher Potter. The gentle, caring team offers whitening, tooth-coloured restorations, veneers and crowns, endodontics and oral surgery in a relaxed setting for anxious patients.",
+    "services": ["Teeth Whitening", "Tooth-Coloured Restorations", "Veneers", "Dental Crowns", "Endodontics", "Oral Surgery"],
+    "highlights": [
+      "Led by principal dentist Dr Christopher Potter",
+      "Macquarie Street, Sydney CBD",
+      "Gentle care for the whole family",
+      "Relaxed approach for anxious patients",
+      "Cosmetic and restorative treatments"
+    ]
+  },
+  {
+    "state": "nsw",
+    "listedDate": "2026-10-21",
+    "name": "Advanced Dental Care Dubbo",
+    "slug": "advanced-dental-care-dubbo",
+    "suburb": "Dubbo",
+    "address": "93 Whylandra Street, Dubbo NSW 2830",
+    "phone": "(02) 6188 7103",
+    "website": "https://adcdubbodentist.com.au",
+    "description": "Advanced Dental Care is a dental practice in Dubbo with experienced practitioners providing general and advanced dental treatments. Services include fillings, crowns and bridges, dentures, gum disease treatment, wisdom tooth removal, teeth grinding treatment and dental implants.",
+    "services": ["Tooth Fillings", "Crowns and Bridges", "Dentures", "Gum Disease Treatment", "Wisdom Tooth Removal", "Teeth Grinding Treatment", "Dental Implants", "Cosmetic Dentistry"],
+    "highlights": [
+      "Experienced Dubbo dental team",
+      "Dental implants and laser procedures",
+      "Cosmetic dentistry",
+      "Wisdom tooth removal",
+      "Serving Dubbo and the Central West"
+    ]
+  },
+  {
+    "state": "nsw",
+    "listedDate": "2026-10-21",
+    "name": "Dr Raymond Platon & Associates",
+    "slug": "dr-raymond-platon-associates",
+    "suburb": "Wetherill Park",
+    "address": "70 Lily Street, Wetherill Park NSW 2164",
+    "phone": "(02) 9609 2935",
+    "website": "https://www.drplaton.com.au",
+    "description": "Dr Raymond Platon & Associates is a family dental clinic in Wetherill Park that has served the local community for over 30 years, led by Dr Raymond Platon since 2002. The multilingual team provides general, preventive, restorative, cosmetic, orthodontic and emergency care for patients from Bossley Park, Prairiewood, Fairfield West, Smithfield and St Johns Park.",
+    "services": ["General Dentistry", "Preventive Dentistry", "Children's Dentistry", "Emergency Dentistry", "Root Canal Treatment", "Crowns and Bridges", "Teeth Whitening", "Porcelain Veneers", "Invisalign", "Wisdom Tooth Removal"],
+    "highlights": [
+      "Over 30 years of dental care in Wetherill Park",
+      "Personalised care for children, teenagers and adults",
+      "General, cosmetic, orthodontic and emergency services",
+      "Multilingual dental team",
+      "Saturday and same-day emergency appointments may be available"
+    ]
+  },
+  {
+    "state": "nsw",
+    "listedDate": "2026-10-21",
+    "name": "Dr Paulo Pinho Oral Surgery Clinic",
+    "slug": "dr-paulo-pinho-oral-surgery-clinic",
+    "suburb": "Sydney",
+    "address": "9 York Street, Sydney NSW 2000",
+    "phone": "1300 721 184",
+    "website": "https://www.drpaulopinho.com.au",
+    "description": "Dr Paulo Pinho is a registered dental surgeon in the Sydney CBD providing dental implants, wisdom teeth removal and oral surgery under local and general anaesthetic. A member of the Australian Dental Association, he previously worked in the oral surgery department of the Royal Dental Hospital in Melbourne.",
+    "services": ["Dental Implants", "Wisdom Teeth Removal", "Oral Surgery", "Sleep Dentistry", "Invisible Braces", "Emergency Dentistry"],
+    "highlights": [
+      "Member of the Australian Dental Association",
+      "Oral surgery under local and general anaesthetic",
+      "Former oral surgery dental officer, Royal Dental Hospital Melbourne",
+      "Open Monday to Sunday, 8am to 8pm",
+      "York Street, Sydney CBD"
+    ]
+  },
+  {
+    "state": "nsw",
+    "listedDate": "2026-10-21",
+    "name": "Westpoint Dental Clinic",
+    "slug": "westpoint-dental-clinic",
+    "suburb": "Blacktown",
+    "address": "Shop 1063, Level 1, 17 Patrick Street, Blacktown NSW 2148",
+    "phone": "(02) 9621 5566",
+    "website": "https://www.westpointdental.com.au",
+    "description": "Westpoint Dental Clinic is a dental practice inside Westpoint Blacktown, where Dr Frank, Dr Nazilla and the team provide treatments from general dentistry through to root canal therapy and orthodontics. The clinic is open six days, plus every second Sunday.",
+    "services": ["General Dentistry", "Preventive Dentistry", "Orthodontics", "Teeth Whitening", "Cosmetic Dentistry", "Oral Surgery", "Microscopic Dentistry", "Wisdom Teeth Removal", "Root Canal Therapy"],
+    "highlights": [
+      "Located in Westpoint Blacktown",
+      "Open Saturdays and every second Sunday",
+      "Microscopic dentistry and root canal therapy",
+      "Orthodontics and cosmetic treatments",
+      "Wisdom teeth removal"
+    ]
+  },
+  {
+    "state": "qld",
+    "listedDate": "2026-10-21",
+    "name": "Bundall Dental and Implants",
+    "slug": "bundall-dental-and-implants",
+    "suburb": "Bundall",
+    "address": "30 Ashmore Road, Bundall QLD 4217",
+    "phone": "(07) 5681 1877",
+    "website": "https://www.bundalldentalandimplants.com.au",
+    "description": "Bundall Dental and Implants is a general dental practice in Bundall on the Gold Coast, led by Dr Mehran Shaibani. The practice offers comprehensive dental care with a focus on dental implants, from single-tooth replacement to full-arch solutions.",
+    "services": ["General Dentistry", "Preventive Dentistry", "Cosmetic Dentistry", "Restorative Dentistry", "Dental Implants", "Emergency Dentistry"],
+    "highlights": [
+      "Over 25 years of experience serving Gold Coast families",
+      "Single-tooth and full-arch implant solutions",
+      "Member of ADA, ICOI and the Australian Society of Implant Dentistry",
+      "Modern technology for precise, minimally invasive treatment",
+      "Led by Dr Mehran Shaibani"
+    ]
+  },
+  {
+    "state": "qld",
+    "listedDate": "2026-10-21",
+    "name": "Next Smile Brisbane",
+    "slug": "next-smile-brisbane",
+    "suburb": "Brisbane",
+    "address": "Level 3, 106 Edward Street, Brisbane QLD 4000",
+    "phone": "(07) 3229 9333",
+    "website": "https://nextsmile.com.au/brisbane/",
+    "description": "Next Smile Brisbane is a dental implant clinic in the Brisbane CBD for people considering All-on-4 dental implants and full-arch tooth replacement. The clinic provides consultations and individual treatment planning based on clinical assessment.",
+    "services": ["All-on-4 Dental Implants", "Full-Arch Implant Consultations", "Dental Implant Treatment Planning", "Implant-Supported Teeth", "Implant Aftercare"],
+    "highlights": [
+      "Dedicated All-on-4 clinic",
+      "Part of the Next Smile Australia network",
+      "Central Brisbane location",
+      "Individual clinical assessment and treatment planning",
+      "Aftercare and maintenance"
+    ]
+  },
+  {
+    "state": "qld",
+    "listedDate": "2026-10-21",
+    "name": "Next Smile Gold Coast",
+    "slug": "next-smile-gold-coast",
+    "suburb": "Carrara",
+    "address": "Shop 10-12, 1 Manchester Road, Carrara QLD 4211",
+    "phone": "(07) 5621 3331",
+    "website": "https://nextsmile.com.au/gold-coast/",
+    "description": "Next Smile Gold Coast is a dental implant clinic in Carrara serving people across the Gold Coast who are considering All-on-4 dental implants and full-arch tooth replacement. The clinic provides consultations and individual treatment planning based on clinical assessment.",
+    "services": ["All-on-4 Dental Implants", "Full-Arch Implant Consultations", "Dental Implant Treatment Planning", "Implant-Supported Teeth", "Implant Aftercare"],
+    "highlights": [
+      "Dedicated All-on-4 clinic",
+      "Part of the Next Smile Australia network",
+      "Carrara location serving the Gold Coast",
+      "Individual clinical assessment and treatment planning",
+      "Aftercare and maintenance"
+    ]
+  },
+  {
+    "state": "sa",
+    "listedDate": "2026-10-21",
+    "name": "Next Smile Adelaide",
+    "slug": "next-smile-adelaide",
+    "suburb": "Stepney",
+    "address": "65 Magill Road, Stepney SA 5069",
+    "phone": "(08) 8151 3095",
+    "website": "https://nextsmile.com.au/adelaide/",
+    "description": "Next Smile Adelaide is a dental implant clinic in Stepney serving people across Adelaide and South Australia who are considering All-on-4 dental implants and full-arch tooth replacement. The clinic provides consultations and individual treatment planning based on clinical assessment.",
+    "services": ["All-on-4 Dental Implants", "Full-Arch Implant Consultations", "Dental Implant Treatment Planning", "Implant-Supported Teeth", "Implant Aftercare"],
+    "highlights": [
+      "Dedicated All-on-4 clinic",
+      "Part of the Next Smile Australia network",
+      "Local Adelaide contact details",
+      "Individual clinical assessment and treatment planning",
+      "Aftercare and maintenance"
+    ]
+  },
+  {
+    "state": "wa",
+    "listedDate": "2026-10-21",
+    "name": "Next Smile Perth",
+    "slug": "next-smile-perth",
+    "suburb": "Perth",
+    "address": "Mezzanine Floor, 190 St Georges Terrace, Perth WA 6000",
+    "phone": "0484 001 995",
+    "website": "https://nextsmile.com.au/perth/",
+    "description": "Next Smile Perth is a dental implant clinic in the Perth CBD for people considering All-on-4 dental implants and full-arch tooth replacement. The clinic provides consultations and individual treatment planning based on clinical assessment.",
+    "services": ["All-on-4 Dental Implants", "Full-Arch Implant Consultations", "Dental Implant Treatment Planning", "Implant-Supported Teeth", "Implant Aftercare"],
+    "highlights": [
+      "Dedicated All-on-4 clinic",
+      "Part of the Next Smile Australia network",
+      "Central Perth location",
+      "Individual clinical assessment and treatment planning",
+      "Aftercare and maintenance"
+    ]
+  },
+  {
+    "state": "wa",
+    "listedDate": "2026-10-21",
+    "name": "Beyond Smiles Dental Kardinya",
+    "slug": "beyond-smiles-dental-kardinya",
+    "suburb": "Kardinya",
+    "address": "15/17-23 South Street, Kardinya WA 6163",
+    "phone": "(08) 6388 4880",
+    "website": "",
+    "description": "Beyond Smiles Dental Kardinya is part of the Beyond Smiles Dental group, providing family dental care to Kardinya and surrounding southern Perth suburbs.",
+    "services": ["General Dentistry", "Preventive Dentistry", "Family Dentistry"],
+    "highlights": [
+      "Part of the Beyond Smiles Dental group",
+      "South Street, Kardinya",
+      "Family dental care"
+    ]
+  },
+  {
+    "state": "wa",
+    "listedDate": "2026-10-21",
+    "name": "Beyond Smiles Dental Stirling",
+    "slug": "beyond-smiles-dental-stirling",
+    "suburb": "Stirling",
+    "address": "Suite 4/8 Sanderling Street, Stirling WA 6021",
+    "phone": "(08) 6388 4882",
+    "website": "",
+    "description": "Beyond Smiles Dental Stirling is part of the Beyond Smiles Dental group, providing family dental care to Stirling and surrounding northern Perth suburbs.",
+    "services": ["General Dentistry", "Preventive Dentistry", "Family Dentistry"],
+    "highlights": [
+      "Part of the Beyond Smiles Dental group",
+      "Sanderling Street, Stirling",
+      "Family dental care"
+    ]
+  },
+  {
+    "state": "wa",
+    "listedDate": "2026-10-21",
+    "name": "Beyond Smiles Dental Forrestdale",
+    "slug": "beyond-smiles-dental-forrestdale",
+    "suburb": "Forrestdale",
+    "address": "629 Ranford Road, Forrestdale WA 6112",
+    "phone": "(08) 6388 4885",
+    "website": "",
+    "description": "Beyond Smiles Dental Forrestdale is part of the Beyond Smiles Dental group, providing family dental care to Forrestdale and surrounding south-east Perth suburbs.",
+    "services": ["General Dentistry", "Preventive Dentistry", "Family Dentistry"],
+    "highlights": [
+      "Part of the Beyond Smiles Dental group",
+      "Ranford Road, Forrestdale",
+      "Family dental care"
+    ]
+  },
+  {
+    "state": "wa",
+    "listedDate": "2026-10-21",
+    "name": "Beyond Smiles Dental Kwinana",
+    "slug": "beyond-smiles-dental-kwinana",
+    "suburb": "Kwinana",
+    "address": "Shop 35, Kwinana Marketplace, 4 Chisham Avenue, Kwinana Town Centre WA 6167",
+    "phone": "(08) 6388 4883",
+    "website": "",
+    "description": "Beyond Smiles Dental Kwinana is part of the Beyond Smiles Dental group, providing family dental care inside Kwinana Marketplace for Kwinana and surrounding suburbs.",
+    "services": ["General Dentistry", "Preventive Dentistry", "Family Dentistry"],
+    "highlights": [
+      "Part of the Beyond Smiles Dental group",
+      "Inside Kwinana Marketplace",
+      "Family dental care"
+    ]
+  },
+  {
+    "state": "wa",
+    "listedDate": "2026-10-21",
+    "name": "Beyond Smiles Dental Cockburn",
+    "slug": "beyond-smiles-dental-cockburn",
+    "suburb": "Cockburn Central",
+    "address": "5A/19 Junction Boulevard, Cockburn Central WA 6164",
+    "phone": "(08) 6388 4886",
+    "website": "",
+    "description": "Beyond Smiles Dental Cockburn is part of the Beyond Smiles Dental group, providing family dental care to Cockburn Central and surrounding southern Perth suburbs.",
+    "services": ["General Dentistry", "Preventive Dentistry", "Family Dentistry"],
+    "highlights": [
+      "Part of the Beyond Smiles Dental group",
+      "Junction Boulevard, Cockburn Central",
+      "Family dental care"
+    ]
+  },
+  {
+    "state": "wa",
+    "listedDate": "2026-10-21",
+    "name": "Beyond Smiles Dental Yanchep",
+    "slug": "beyond-smiles-dental-yanchep",
+    "suburb": "Yanchep",
+    "address": "Unit 3/105 Lindsay Beach Boulevard, Yanchep WA 6035",
+    "phone": "(08) 6388 4884",
+    "website": "",
+    "description": "Beyond Smiles Dental Yanchep is part of the Beyond Smiles Dental group, providing family dental care to Yanchep and surrounding northern coastal suburbs.",
+    "services": ["General Dentistry", "Preventive Dentistry", "Family Dentistry"],
+    "highlights": [
+      "Part of the Beyond Smiles Dental group",
+      "Lindsay Beach Boulevard, Yanchep",
+      "Family dental care"
+    ]
+  }
+]

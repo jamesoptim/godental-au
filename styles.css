@@ -341,6 +341,80 @@ ul {
   font-size: 0.88rem;
 }
 
+/* --- New Listings (Homepage) --- */
+.new-listings {
+  padding-bottom: 2.5rem;
+}
+
+.new-listings-sub {
+  text-align: center;
+  color: #64748b;
+  margin-top: 0.85rem;
+}
+
+.new-listings-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1.25rem;
+  align-items: start;
+  padding-top: 1.5rem;
+}
+
+.new-state-group {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 1.25rem 1.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 4px 12px rgba(0, 0, 0, 0.03);
+}
+
+.new-state-group h3 {
+  font-size: 1.05rem;
+  font-weight: 700;
+  margin-bottom: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.new-state-group h3 a {
+  color: #1e293b;
+}
+
+.new-state-group .state-abbr {
+  background: linear-gradient(135deg, #f0fdfa, #ccfbf1);
+  color: #0f766e;
+  font-weight: 800;
+  font-size: 0.7rem;
+  padding: 0.15rem 0.6rem;
+  border-radius: 999px;
+  letter-spacing: 0.05em;
+}
+
+.new-state-group ul {
+  list-style: none;
+}
+
+.new-state-group li {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.45rem 0;
+  border-top: 1px solid #f1f5f9;
+  font-size: 0.92rem;
+}
+
+.new-state-group li:first-child {
+  border-top: 0;
+}
+
+.new-listing-suburb {
+  color: #64748b;
+  font-size: 0.82rem;
+  white-space: nowrap;
+}
+
 /* --- Homepage CTA --- */
 .home-cta {
   padding: 0 0 3rem;

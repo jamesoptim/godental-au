@@ -3230,6 +3230,35 @@ const practices = {
 };
 
 // ============================================================
+// SUBMITTED LISTINGS — approved form submissions live in new-listings.json
+// (contact details and the full submission log are kept privately in
+// ../godental-submissions/submissions.json, never in this repo)
+// ============================================================
+const NEW_LISTING_DAYS = 30;
+const buildDate = new Date();
+
+function newListingExpiry(listedDate) {
+  const d = new Date(listedDate + 'T00:00:00+10:00');
+  d.setDate(d.getDate() + NEW_LISTING_DAYS);
+  return d;
+}
+
+function isNewListing(practice) {
+  return Boolean(practice.listedDate) && newListingExpiry(practice.listedDate) > buildDate;
+}
+
+const newListingsPath = path.join(__dirname, 'new-listings.json');
+if (fs.existsSync(newListingsPath)) {
+  for (const listing of JSON.parse(fs.readFileSync(newListingsPath, 'utf-8'))) {
+    const { state, ...practice } = listing;
+    if (practices[state].some((p) => p.slug === practice.slug)) {
+      throw new Error(`Duplicate slug in new-listings.json: ${state}/${practice.slug}`);
+    }
+    practices[state].push(practice);
+  }
+}
+
+// ============================================================
 // STATE PAGE CONTENT (intro, below-fold, FAQs)
 // ============================================================
 const stateContent = {
@@ -3652,6 +3681,55 @@ function buildHomepage() {
 
   const totalPractices = Object.values(practices).reduce((sum, arr) => sum + arr.length, 0);
 
+  // New listings: shown for NEW_LISTING_DAYS after going live, grouped by state.
+  // The build filters expired ones; the inline script also hides any that expire
+  // before the next rebuild.
+  const newGroups = states
+    .map((s) => ({
+      state: s,
+      items: practices[s.slug]
+        .filter(isNewListing)
+        .sort((a, b) => b.listedDate.localeCompare(a.listedDate) || a.name.localeCompare(b.name)),
+    }))
+    .filter((g) => g.items.length);
+
+  const newListingsSection = newGroups.length
+    ? `
+    <section class="new-listings" id="new-listings">
+      <h2 class="section-heading">New Listings</h2>
+      <p class="new-listings-sub">Dental practices added to GoDental.au in the last ${NEW_LISTING_DAYS} days.</p>
+      <div class="new-listings-grid">
+        ${newGroups
+          .map(
+            (g) => `
+        <div class="new-state-group">
+          <h3><a href="/${g.state.slug}/">${g.state.name}</a> <span class="state-abbr">${g.state.abbr}</span></h3>
+          <ul>
+            ${g.items
+              .map(
+                (p) => `<li data-expires="${newListingExpiry(p.listedDate).toISOString()}"><a href="/${g.state.slug}/${p.slug}/">${escapeHtml(p.name)}</a><span class="new-listing-suburb">${escapeHtml(p.suburb)}</span></li>`
+              )
+              .join('\n            ')}
+          </ul>
+        </div>`
+          )
+          .join('\n')}
+      </div>
+    </section>
+    <script>
+    (function(){
+      var now = Date.now();
+      document.querySelectorAll('#new-listings li[data-expires]').forEach(function(li){
+        if (Date.parse(li.getAttribute('data-expires')) <= now) li.remove();
+      });
+      document.querySelectorAll('#new-listings .new-state-group').forEach(function(g){
+        if (!g.querySelector('li')) g.remove();
+      });
+      if (!document.querySelector('#new-listings li')) document.getElementById('new-listings').remove();
+    })();
+    </script>`
+    : '';
+
   const content = `
   <section class="hero">
     <div class="hero-bg">
@@ -3680,7 +3758,7 @@ function buildHomepage() {
     <h2 class="section-heading">Browse by State</h2>
     <section class="state-grid">
       ${stateCards}
-    </section>
+    </section>${newListingsSection}
     <section class="home-cta">
       <div class="home-cta-inner">
         <h2>Are you a dental practice?</h2>
@@ -3968,7 +4046,7 @@ function buildPracticeDetail(state, practice) {
       streetAddress: practice.address,
     },
     telephone: practice.phone,
-    url: practice.website,
+    ...(practice.website && { url: practice.website }),
   };
 
   const content = `
@@ -4031,7 +4109,7 @@ function buildPracticeDetail(state, practice) {
         <div class="sidebar-card">
           <h3>Contact</h3>
           <a href="tel:${practice.phone.replace(/[^+\d]/g, '')}" class="btn btn-call btn-block"><i class="fa-solid fa-phone"></i>Call ${escapeHtml(practice.phone)}</a>
-          <a href="${escapeHtml(practice.website)}" target="_blank" rel="noopener nofollow" class="btn btn-website btn-block"><i class="fa-solid fa-globe"></i> Visit Website</a>
+          ${practice.website ? `<a href="${escapeHtml(practice.website)}" target="_blank" rel="noopener nofollow" class="btn btn-website btn-block"><i class="fa-solid fa-globe"></i> Visit Website</a>` : ''}
           <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(practice.name + ' ' + practice.address)}" target="_blank" rel="noopener nofollow" class="btn btn-reviews btn-block"><i class="fa-solid fa-star"></i> Google Reviews</a>
           <p class="sidebar-address"><i class="fa-solid fa-location-dot"></i> ${escapeHtml(practice.address)}</p>
         </div>
